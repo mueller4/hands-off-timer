@@ -33,6 +33,12 @@ Usage string (`NSAlarmKitUsageDescription` / in-app explainer):
 
 > Hands-Off Timer uses alarms so each step can break through Silent and Focus when it ends. The next timer is already running — acknowledge when you’re ready.
 
+## AlarmKit compile note (iOS 26.0 vs 26.1)
+
+Xcode 26.1 SDK marks `AlarmPresentation.Alert.init(title:secondaryButton:secondaryButtonBehavior:)` as **iOS 26.1+**. Against a **26.0** deployment target that initializer is an error (`AlarmKitGateway.swift` ~line 100).
+
+Use the iOS 26.0 initializer instead: `Alert(title:stopButton:)` with an **OK** `AlarmButton`. Do not bump the whole target to 26.1 just to use the title-only init. The stopButton form is deprecated on 26.1 but still compiles; a deprecation warning is OK.
+
 ## Device test (required)
 
 Simulator cannot prove Silent/Focus breakthrough or Dynamic Island.

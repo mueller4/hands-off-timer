@@ -53,7 +53,7 @@ final class AlarmKitGateway {
     /// User tapped Stop. Cancel scheduled + alerting alarms for this run.
     /// Does not touch ChainEngine — the caller already stopped it.
     func cancelAllForRun() {
-        Task { await tearDownAll() }
+        tearDownAll()
     }
 
     func sync(_ snapshot: EngineSnapshot) {
@@ -96,10 +96,7 @@ final class AlarmKitGateway {
 
         let id = UUID()
         let title = "\(end.label) ended"
-
-        let alert = AlarmPresentation.Alert(
-            title: LocalizedStringResource(stringLiteral: title)
-        )
+        let alert = Self.makeAlert(title: title)
 
         let attributes = AlarmAttributes<StepEndMetadata>(
             presentation: AlarmPresentation(alert: alert),
@@ -107,10 +104,14 @@ final class AlarmKitGateway {
             tintColor: .orange
         )
 
-        let configuration = AlarmManager.AlarmConfiguration.alarm(
+        // Memberwise init is the iOS 26.0 surface. `.alarm(...)` factory is equivalent
+        // on later SDKs; this form stays available at the locked 26.0 deployment.
+        let configuration = AlarmManager.AlarmConfiguration(
+            countdownDuration: nil,
             schedule: .fixed(end.endDate),
             attributes: attributes,
             stopIntent: AcknowledgeStepIntent(alarmID: id.uuidString),
+            secondaryIntent: nil,
             sound: .default
         )
 
@@ -120,6 +121,20 @@ final class AlarmKitGateway {
         } catch {
             pending = nil
         }
+    }
+
+    /// iOS 26.0 requires `stopButton`. Do not use `Alert(title:)` — that
+    /// `init(title:secondaryButton:secondaryButtonBehavior:)` is iOS 26.1+ and
+    /// fails against this project's 26.0 deployment target.
+    private static func makeAlert(title: String) -> AlarmPresentation.Alert {
+        AlarmPresentation.Alert(
+            title: LocalizedStringResource(stringLiteral: title),
+            stopButton: AlarmButton(
+                text: "OK",
+                textColor: .white,
+                systemImageName: "checkmark"
+            )
+        )
     }
 
     private func cancelPending() {
