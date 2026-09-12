@@ -3,6 +3,7 @@ import Foundation
 
 /// Best-effort Live Activity. Survives force-quit only while the system keeps the activity;
 /// not reboot survival. Never blocks engine auto-advance.
+@MainActor
 final class LiveActivityController {
     static let shared = LiveActivityController()
 

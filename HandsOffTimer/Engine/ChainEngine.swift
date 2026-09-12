@@ -14,7 +14,7 @@ final class ChainEngine {
     private var session: Session?
     private var status: EngineStatus = .idle
     private var lastStepIndex = 0
-    private var timer: Timer?
+    private var tickTask: Task<Void, Never>?
     private let persistURL: URL
     private let interval: TimeInterval
 
@@ -266,16 +266,22 @@ final class ChainEngine {
 
     private func startTicker() {
         stopTicker()
-        let timer = Timer(timeInterval: interval, repeats: true) { [weak self] _ in
-            self?.tick()
+        let interval = self.interval
+        tickTask = Task { [weak self] in
+            while !Task.isCancelled {
+                do {
+                    try await Task.sleep(for: .seconds(interval))
+                } catch {
+                    return
+                }
+                self?.tick()
+            }
         }
-        RunLoop.main.add(timer, forMode: .common)
-        self.timer = timer
     }
 
     private func stopTicker() {
-        timer?.invalidate()
-        timer = nil
+        tickTask?.cancel()
+        tickTask = nil
     }
 
     private func persist() {

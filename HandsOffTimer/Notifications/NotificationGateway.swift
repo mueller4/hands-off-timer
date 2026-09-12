@@ -8,6 +8,7 @@ extension Notification.Name {
 
 /// Schedules local notifications from engine snapshots.
 /// Never pauses, stops, resets, or delays the chain.
+@MainActor
 final class NotificationGateway {
     static let shared = NotificationGateway()
 
@@ -18,13 +19,6 @@ final class NotificationGateway {
     private let center = UNUserNotificationCenter.current()
 
     private init() {}
-
-    func bind(engine: ChainEngine) {
-        engine.onSnapshot = { [weak self] snap in
-            self?.sync(snap)
-            LiveActivityController.shared.sync(snap)
-        }
-    }
 
     func requestAuthorizationIfNeeded() async {
         let settings = await center.notificationSettings()
