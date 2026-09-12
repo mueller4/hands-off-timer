@@ -104,7 +104,7 @@ struct HomeView: View {
 
     private var empty: some View {
         ContentUnavailableView {
-            Label("No chains yet", systemImage: "timer")
+            Label("No Chains Created", systemImage: "timer")
         } description: {
             Text("Build a sequence of timers that advance on their own. Start from Home — the editor only saves.")
         } actions: {
