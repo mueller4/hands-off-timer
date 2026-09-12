@@ -152,7 +152,8 @@ final class AlarmKitGateway {
             try? manager.cancel(id: id)
         }
         alertingIDs.removeAll()
-        for alarm in manager.alarms {
+        // `alarms` is a throwing getter (`get throws`) — must use try.
+        for alarm in (try? manager.alarms) ?? [] {
             try? manager.stop(id: alarm.id)
             try? manager.cancel(id: alarm.id)
         }

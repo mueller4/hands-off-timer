@@ -39,6 +39,8 @@ Xcode 26.1 SDK marks `AlarmPresentation.Alert.init(title:secondaryButton:seconda
 
 Use the iOS 26.0 initializer instead: `Alert(title:stopButton:)` with an **OK** `AlarmButton`. Do not bump the whole target to 26.1 just to use the title-only init. The stopButton form is deprecated on 26.1 but still compiles; a deprecation warning is OK.
 
+`AlarmManager.alarms` is a throwing getter (`get throws`). Always read it as `(try? manager.alarms) ?? []`.
+
 ## Device test (required)
 
 Simulator cannot prove Silent/Focus breakthrough or Dynamic Island.
