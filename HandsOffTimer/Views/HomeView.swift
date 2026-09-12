@@ -16,7 +16,7 @@ struct HomeView: View {
                     list
                 }
             }
-            .navigationTitle("Chains")
+            .navigationTitle("Timer Chains")
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button {
