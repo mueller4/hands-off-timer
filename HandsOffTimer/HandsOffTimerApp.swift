@@ -14,14 +14,17 @@ struct HandsOffTimerApp: App {
                 .environment(engine)
                 .environment(router)
                 .onAppear {
-                    engine.onNaturalEnd = { _ in
+                    engine.onNaturalEnd = { event in
+                        // Promote the firing alarm so snapshot sync does not cancel it.
+                        // Engine already advanced; this is output-only.
+                        AlarmKitGateway.shared.noteNaturalEnd(event)
                         Haptics.light()
                     }
                     engine.onSnapshot = { snap in
-                        NotificationGateway.shared.sync(snap)
+                        AlarmKitGateway.shared.sync(snap)
                         LiveActivityController.shared.sync(snap)
                     }
-                    NotificationGateway.shared.sync(engine.snapshot)
+                    AlarmKitGateway.shared.sync(engine.snapshot)
                     LiveActivityController.shared.sync(engine.snapshot)
                     if engine.snapshot.status == .running || engine.snapshot.status == .paused {
                         router.showRun = true

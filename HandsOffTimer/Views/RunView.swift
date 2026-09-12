@@ -19,6 +19,7 @@ struct RunView: View {
         .confirmationDialog("End this chain?", isPresented: $confirmStop, titleVisibility: .visible) {
             Button("End chain", role: .destructive) {
                 completeTask?.cancel()
+                AlarmKitGateway.shared.cancelAllForRun()
                 engine.stop()
                 router.showRun = false
                 dismiss()

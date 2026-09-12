@@ -35,22 +35,23 @@ True Liquid Glass Icon Composer `.icon` is a later Mac pass — the flat 1024 is
 - Cancel (leading) / Save (trailing, disabled until valid).
 - **No Start control.**
 - Name field placeholder `Untitled chain`.
-- Steps: optional label, duration as minutes + seconds (≥ 1s total), reorder, delete, Add Step.
+- Steps: optional label, duration as side-by-side **wheel pickers** (minutes 0…99, seconds 0…59 — Clock → Timer), reorder, delete, Add Step.
+- Save still requires ≥ 1s per step and ≥ 2 steps.
 
 ### Run
 
 - Full-screen cover.
 - Hierarchy: Step X of Y → label → remaining → next line.
 - Three equal controls: Skip (silent), Pause/Resume, Stop (confirm “End this chain?”).
-- Natural end: system banner + sound + light haptic, **non-blocking** — the next remaining time is already on screen.
-- Skip never shows a banner.
+- Natural end: AlarmKit alert + light haptic, **non-blocking** — the next remaining time is already on screen. The alarm continues until OK.
+- Skip never shows an alarm.
 - Complete: brief Done, auto-dismiss to Home.
 
 ## Dynamic Island / Live Activity
 
-- Compact: timer glyph + countdown.
-- Expanded: chain name, label, step X of Y, next line, countdown.
-- Lock screen: same content.
+- **Default compact:** timer glyph leading, mm:ss trailing. Minimal is the timer glyph.
+- **Expanded** only when the user expands the Island (chain label, step X/Y, countdown). Not a full-width unlocked banner.
+- **Lock Screen:** compact single row (glyph + label + mm:ss / Paused).
 - Paused: show **Paused** instead of a live countdown.
 
 ## Motion
@@ -60,4 +61,4 @@ True Liquid Glass Icon Composer `.icon` is a later Mac pass — the flat 1024 is
 
 ## Architecture (design implication)
 
-`ChainEngine` is the source of truth for *when* a step ends. Notification banners and Live Activities are **output**. Tapping or dismissing a banner is navigation only — it must not look like a control that pauses or stops the chain.
+`ChainEngine` is the source of truth for *when* a step ends. AlarmKit alerts and Live Activities are **output**. Acknowledging an alarm is navigation only — it must not look like a control that pauses or stops the chain.

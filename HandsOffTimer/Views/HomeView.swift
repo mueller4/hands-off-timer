@@ -51,7 +51,7 @@ struct HomeView: View {
                     Task { await startPending(requestPermission: false) }
                 }
             } message: {
-                Text(NotificationGateway.purpose)
+                Text(AlarmKitGateway.purpose)
             }
         }
     }
@@ -119,21 +119,18 @@ struct HomeView: View {
 
     private func start(_ chain: TimerChain) {
         router.pendingStart = chain
-        Task {
-            let status = await NotificationGateway.shared.authorizationStatus()
-            if status == .notDetermined && !router.didPromptNotifications {
-                showPermission = true
-                return
-            }
-            await startPending(requestPermission: false)
+        if AlarmKitGateway.shared.needsAuthorizationPrompt && !router.didPromptAlarms {
+            showPermission = true
+            return
         }
+        Task { await startPending(requestPermission: false) }
     }
 
     @MainActor
     private func startPending(requestPermission: Bool) async {
-        router.didPromptNotifications = true
+        router.didPromptAlarms = true
         if requestPermission {
-            await NotificationGateway.shared.requestAuthorizationIfNeeded()
+            await AlarmKitGateway.shared.requestAuthorizationIfNeeded()
         }
         guard let chain = router.pendingStart else { return }
         router.pendingStart = nil

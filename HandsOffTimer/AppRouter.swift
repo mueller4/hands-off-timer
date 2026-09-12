@@ -9,7 +9,7 @@ final class AppRouter {
     var showRun = false
     var showPermissionExplainer = false
     var pendingStart: TimerChain?
-    var didPromptNotifications = false
+    var didPromptAlarms = false
 
     func openNew() {
         editing = TimerChain()

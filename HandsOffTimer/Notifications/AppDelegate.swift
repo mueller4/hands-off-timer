@@ -14,7 +14,8 @@ final class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCent
         _ center: UNUserNotificationCenter,
         willPresent notification: UNNotification
     ) async -> UNNotificationPresentationOptions {
-        // Foreground banner + sound. Do not pause, stop, reset, or delay the engine.
+        // Leftover local notifications only. Step-end breakthrough is AlarmKit.
+        // Do not pause, stop, reset, or delay the engine.
         [.banner, .sound, .list]
     }
 

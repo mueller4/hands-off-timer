@@ -2,41 +2,37 @@ import ActivityKit
 import SwiftUI
 import WidgetKit
 
-@main
 struct ChainActivityWidget: Widget {
     var body: some WidgetConfiguration {
         ActivityConfiguration(for: ChainActivityAttributes.self) { context in
-            LockScreenBanner(context: context)
-                .padding(16)
+            // Compact Lock Screen card (also the unlocked banner on non-Island phones).
+            CompactLockScreen(context: context)
         } dynamicIsland: { context in
+            // Compact + minimal are the defaults. Expanded regions render only
+            // when the user long-presses / expands the Island — never as a
+            // full-width banner while unlocked.
             DynamicIsland {
                 DynamicIslandExpandedRegion(.leading) {
                     VStack(alignment: .leading, spacing: 2) {
-                        Text(context.attributes.chainName)
-                            .font(.caption.weight(.semibold))
                         Text(context.state.label)
-                            .font(.headline)
+                            .font(.subheadline.weight(.semibold))
+                            .lineLimit(1)
+                        Text("Step \(context.state.stepIndex + 1)/\(context.state.stepCount)")
+                            .font(.caption2)
+                            .foregroundStyle(.secondary)
                     }
                 }
                 DynamicIslandExpandedRegion(.trailing) {
                     countdown(context)
-                        .font(.title2.monospacedDigit().weight(.semibold))
-                }
-                DynamicIslandExpandedRegion(.bottom) {
-                    HStack {
-                        Text("Step \(context.state.stepIndex + 1) of \(context.state.stepCount)")
-                        Spacer()
-                        Text(context.state.nextLabel.isEmpty ? "Last step" : "Next: \(context.state.nextLabel)")
-                    }
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
+                        .font(.subheadline.monospacedDigit().weight(.semibold))
                 }
             } compactLeading: {
                 Image(systemName: "timer")
             } compactTrailing: {
                 countdown(context)
-                    .monospacedDigit()
-                    .frame(minWidth: 40)
+                    .font(.caption.monospacedDigit().weight(.semibold))
+                    .frame(minWidth: 36, maxWidth: 52)
+                    .minimumScaleFactor(0.7)
             } minimal: {
                 Image(systemName: "timer")
             }
@@ -53,45 +49,33 @@ struct ChainActivityWidget: Widget {
     }
 }
 
-private struct LockScreenBanner: View {
+private struct CompactLockScreen: View {
     let context: ActivityViewContext<ChainActivityAttributes>
 
     var body: some View {
-        HStack(alignment: .center, spacing: 12) {
-            VStack(alignment: .leading, spacing: 4) {
-                Text(context.attributes.chainName)
-                    .font(.subheadline.weight(.semibold))
-                Text("Step \(context.state.stepIndex + 1) of \(context.state.stepCount)")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                Text(context.state.label)
-                    .font(.headline)
-                Text(context.state.nextLabel.isEmpty ? "Last step" : "Next: \(context.state.nextLabel)")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-            }
-            Spacer()
+        HStack(spacing: 8) {
+            Image(systemName: "timer")
+                .font(.body.weight(.semibold))
+            Text(context.state.label)
+                .font(.subheadline.weight(.semibold))
+                .lineLimit(1)
+            Spacer(minLength: 4)
             Group {
                 if context.state.isPaused {
-                    VStack {
-                        Text("Paused")
-                            .font(.caption)
-                        Text(remainingString(context.state.endDate.timeIntervalSinceNow))
-                            .font(.title.monospacedDigit().weight(.semibold))
-                    }
+                    Text("Paused")
+                        .font(.caption.weight(.semibold))
                 } else {
                     Text(timerInterval: Date.now...max(context.state.endDate, Date.now), countsDown: true)
-                        .font(.title.monospacedDigit().weight(.semibold))
-                        .minimumScaleFactor(0.6)
+                        .font(.body.monospacedDigit().weight(.semibold))
+                        .minimumScaleFactor(0.7)
+                        .lineLimit(1)
                 }
             }
+            .frame(minWidth: 44)
         }
+        .padding(.horizontal, 12)
+        .padding(.vertical, 8)
         .activityBackgroundTint(Color.black.opacity(0.25))
         .activitySystemActionForegroundColor(.white)
-    }
-
-    private func remainingString(_ interval: TimeInterval) -> String {
-        let total = max(0, Int(ceil(interval)))
-        return String(format: "%d:%02d", total / 60, total % 60)
     }
 }
