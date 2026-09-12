@@ -4,25 +4,28 @@ import Foundation
 
 /// System stop / OK on a step-end alarm. Opens Run on the already-advanced engine state.
 /// Must never pause, stop, skip, or reschedule ChainEngine.
-struct AcknowledgeStepIntent: LiveActivityIntent {
-    static var title: LocalizedStringResource = "OK"
-    static var description = IntentDescription(
+///
+/// `LiveActivityIntent` runs in the **app** process. Keep this type in the app target
+/// (widget does not link it — that is a common Command Ld failure).
+public struct AcknowledgeStepIntent: LiveActivityIntent {
+    public static var title: LocalizedStringResource = "OK"
+    public static var description = IntentDescription(
         "Acknowledges a step-end alarm. The next timer is already running."
     )
-    static var openAppWhenRun: Bool = true
+    public static var openAppWhenRun: Bool = true
 
     @Parameter(title: "Alarm ID")
-    var alarmID: String
+    public var alarmID: String
 
-    init() {
+    public init() {
         alarmID = ""
     }
 
-    init(alarmID: String) {
+    public init(alarmID: String) {
         self.alarmID = alarmID
     }
 
-    func perform() async throws -> some IntentResult {
+    public func perform() async throws -> some IntentResult {
         if let id = UUID(uuidString: alarmID) {
             try? AlarmManager.shared.stop(id: id)
         }
