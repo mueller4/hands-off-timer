@@ -150,8 +150,7 @@ struct StepEditorRow: View {
         Binding(
             get: { min(99, step.durationSeconds / 60) },
             set: { minutes in
-                let seconds = step.durationSeconds % 60
-                step.durationSeconds = max(0, minutes) * 60 + seconds
+                applyDuration(minutes: max(0, minutes), seconds: step.durationSeconds % 60)
             }
         )
     }
@@ -160,9 +159,16 @@ struct StepEditorRow: View {
         Binding(
             get: { step.durationSeconds % 60 },
             set: { seconds in
-                let minutes = min(99, step.durationSeconds / 60)
-                step.durationSeconds = minutes * 60 + min(59, max(0, seconds))
+                applyDuration(
+                    minutes: min(99, step.durationSeconds / 60),
+                    seconds: min(59, max(0, seconds))
+                )
             }
         )
+    }
+
+    private func applyDuration(minutes: Int, seconds: Int) {
+        let total = minutes * 60 + seconds
+        step.durationSeconds = max(TimerChain.minStepSeconds, total)
     }
 }

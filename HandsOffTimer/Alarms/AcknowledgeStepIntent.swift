@@ -28,6 +28,7 @@ public struct AcknowledgeStepIntent: LiveActivityIntent {
     public func perform() async throws -> some IntentResult {
         if let id = UUID(uuidString: alarmID) {
             try? AlarmManager.shared.stop(id: id)
+            await AlarmKitGateway.shared.noteAcknowledged(id: id)
         }
         await MainActor.run {
             NotificationCenter.default.post(name: .handsOffOpenRun, object: nil)
