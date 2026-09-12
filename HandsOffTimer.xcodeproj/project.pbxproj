@@ -40,7 +40,8 @@
 		A11A01010000000000000006 /* HandsOffTimerWidgets.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11A0101000000000000F006 /* HandsOffTimerWidgets.swift */; };
 		A11A01010000000000000007 /* AlarmKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A11A0101000000000000F007 /* AlarmKit.framework */; };
 		A11A01010000000000000008 /* AlarmKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A11A0101000000000000F007 /* AlarmKit.framework */; };
-		A11A01010000000000000009 /* AcknowledgeStepIntent.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11A0101000000000000F002 /* AcknowledgeStepIntent.swift */; };
+		A11A0101000000000000000A /* AppIntents.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A11A0101000000000000F008 /* AppIntents.framework */; };
+		A11A0101000000000000000B /* AppIntents.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A11A0101000000000000F008 /* AppIntents.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -100,6 +101,7 @@
 		A11A0101000000000000F005 /* StepEndAlarmActivity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StepEndAlarmActivity.swift; sourceTree = "<group>"; };
 		A11A0101000000000000F006 /* HandsOffTimerWidgets.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HandsOffTimerWidgets.swift; sourceTree = "<group>"; };
 		A11A0101000000000000F007 /* AlarmKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AlarmKit.framework; path = System/Library/Frameworks/AlarmKit.framework; sourceTree = SDKROOT; };
+		A11A0101000000000000F008 /* AppIntents.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppIntents.framework; path = System/Library/Frameworks/AppIntents.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -110,6 +112,7 @@
 				EE4D1F18804B20814B3302A9 /* SwiftUI.framework in Frameworks */,
 				7D9281B2E168BD0DE03241FC /* ActivityKit.framework in Frameworks */,
 				A11A01010000000000000007 /* AlarmKit.framework in Frameworks */,
+				A11A0101000000000000000A /* AppIntents.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -121,6 +124,7 @@
 				6AB206239DF3E3E6EEF8EE09 /* WidgetKit.framework in Frameworks */,
 				36A8AB380A32D2004701230A /* ActivityKit.framework in Frameworks */,
 				A11A01010000000000000008 /* AlarmKit.framework in Frameworks */,
+				A11A0101000000000000000B /* AppIntents.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -154,6 +158,7 @@
 				C67F9412589A9B3BB9F84498 /* ActivityKit.framework */,
 				5252A49CB41A8E76CF422EEB /* WidgetKit.framework */,
 				A11A0101000000000000F007 /* AlarmKit.framework */,
+				A11A0101000000000000F008 /* AppIntents.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -399,7 +404,6 @@
 				16E39014F9B7195E7BF70290 /* ChainActivityAttributes.swift in Sources */,
 				A11A01010000000000000004 /* StepEndMetadata.swift in Sources */,
 				A11A01010000000000000005 /* StepEndAlarmActivity.swift in Sources */,
-				A11A01010000000000000009 /* AcknowledgeStepIntent.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -505,6 +509,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
 				LD_RUNPATH_SEARCH_PATHS = ("$(inherited)", "@executable_path/Frameworks", );
 				MARKETING_VERSION = 1.0;
+				OTHER_LDFLAGS = ("$(inherited)", "-framework", "AlarmKit", "-framework", "AppIntents", "-framework", "ActivityKit");
 				PRODUCT_BUNDLE_IDENTIFIER = com.mueller4.HandsOffTimer;
 				PRODUCT_NAME = "HandsOffTimer";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
@@ -541,6 +546,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
 				LD_RUNPATH_SEARCH_PATHS = ("$(inherited)", "@executable_path/Frameworks", );
 				MARKETING_VERSION = 1.0;
+				OTHER_LDFLAGS = ("$(inherited)", "-framework", "AlarmKit", "-framework", "AppIntents", "-framework", "ActivityKit");
 				PRODUCT_BUNDLE_IDENTIFIER = com.mueller4.HandsOffTimer;
 				PRODUCT_NAME = "HandsOffTimer";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
@@ -564,12 +570,16 @@
 				INFOPLIST_FILE = ChainActivityWidget/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "Hands-Off Timer";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INFOPLIST_KEY_NSSupportsLiveActivities = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
 				LD_RUNPATH_SEARCH_PATHS = ("$(inherited)", "@executable_path/Frameworks", "@executable_path/../../Frameworks", );
 				MARKETING_VERSION = 1.0;
+				OTHER_LDFLAGS = ("$(inherited)", "-framework", "AlarmKit", "-framework", "AppIntents", "-framework", "WidgetKit", "-framework", "ActivityKit");
 				PRODUCT_BUNDLE_IDENTIFIER = com.mueller4.HandsOffTimer.ChainActivity;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				WRAPPER_EXTENSION = appex;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
 				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
@@ -590,12 +600,16 @@
 				INFOPLIST_FILE = ChainActivityWidget/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "Hands-Off Timer";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INFOPLIST_KEY_NSSupportsLiveActivities = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
 				LD_RUNPATH_SEARCH_PATHS = ("$(inherited)", "@executable_path/Frameworks", "@executable_path/../../Frameworks", );
 				MARKETING_VERSION = 1.0;
+				OTHER_LDFLAGS = ("$(inherited)", "-framework", "AlarmKit", "-framework", "AppIntents", "-framework", "WidgetKit", "-framework", "ActivityKit");
 				PRODUCT_BUNDLE_IDENTIFIER = com.mueller4.HandsOffTimer.ChainActivity;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				WRAPPER_EXTENSION = appex;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
 				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
