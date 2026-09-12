@@ -19,7 +19,7 @@ Open `HandsOffTimer.xcodeproj` on a Mac. Scheme **HandsOffTimer**. iPhone simula
   - Skip → cancel the pending (not-yet-fired) alarm. No AlarmKit alert.
   - Stop → `cancelAllForRun()` (cancel pending + stop alerting) and end the Live Activity.
   - Pause → cancel the pending schedule; resume reschedules the remaining wall-clock end.
-- **AcknowledgeStepIntent** (`LiveActivityIntent`) runs on OK. It stops that AlarmKit alarm and posts `Notification.Name.handsOffOpenRun`. Navigation only. Compiled in the **app target only**.
+- **AcknowledgeStepIntent** (`LiveActivityIntent`) runs on OK. It stops that AlarmKit alarm and posts `Notification.Name.handsOffOpenRun`. Navigation only.
 - Persistence is **Codable + FileManager** (Application Support), not SwiftData — fewer moving parts for MVP.
 - Live Activity content carries `stepIndex`, `stepCount`, `label`, `endDate`, `nextLabel` (plus `isPaused` so a paused island does not keep counting). Default presentation is **compact** Island (glyph + mm:ss) + compact Lock Screen card. Expanded regions exist only for user expansion. `Activity.request` / `update` never pass `alertConfiguration`.
 - Active-run session is snapshotted to disk so a force-quit can restore the already-advanced step (best-effort; not reboot survival).
@@ -43,11 +43,11 @@ Use the iOS 26.0 initializer instead: `Alert(title:stopButton:)` with an **OK** 
 
 **Command Ld failed:** expand the failed `Ld` step in Xcode’s Report navigator — the real line is above the generic “nonzero exit code.” This project now:
 
-- Links **AlarmKit** + **AppIntents** on the app, and **AlarmKit** + **AppIntents** + WidgetKit + ActivityKit on the widget
-- Compiles `AcknowledgeStepIntent` **only in the app** (`LiveActivityIntent` runs in the app process; putting it in the widget was a linker footgun)
+- Links **AlarmKit** + **AppIntents** on the app, and **AlarmKit** + **AppIntents** + WidgetKit + ActivityKit on the widget (frameworks phase **and** `OTHER_LDFLAGS`)
+- Compiles `AcknowledgeStepIntent` **only in the app** (`LiveActivityIntent` runs in the app process; putting it in the widget without AppIntents is a Command Ld / undefined-symbol failure)
 - Marks the widget `APPLICATION_EXTENSION_API_ONLY` with `WRAPPER_EXTENSION = appex`
 
-If Ld still fails, Product → Clean Build Folder, then rebuild. Paste the **Undefined symbols** / **framework not found** lines from the Ld log, not only the last line.
+If Ld still fails: Product → Clean Build Folder, delete DerivedData for this project if needed, then rebuild. Paste the **Undefined symbols** / **framework not found** lines from the Ld log, not only the last line.
 
 ## Device test (required)
 
