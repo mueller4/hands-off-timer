@@ -1,7 +1,7 @@
 import Foundation
 
 /// Owns chain progression via wall-clock deadlines.
-/// Independent of `UNUserNotificationCenter` — notifications never gate auto-advance.
+/// Independent of AlarmKit and UserNotifications — alarms/notifications never gate auto-advance.
 @MainActor
 @Observable
 final class ChainEngine {

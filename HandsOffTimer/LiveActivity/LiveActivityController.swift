@@ -1,8 +1,10 @@
 import ActivityKit
 import Foundation
 
-/// Best-effort Live Activity. Survives force-quit only while the system keeps the activity;
-/// not reboot survival. Never blocks engine auto-advance.
+/// Best-effort Live Activity. Compact Dynamic Island by default (never expanded-on-start).
+/// Survives force-quit only while the system keeps the activity; not reboot survival.
+/// Never blocks engine auto-advance. Never passes an alertConfiguration (that would
+/// expand the Island / show a full-width unlocked banner).
 @MainActor
 final class LiveActivityController {
     static let shared = LiveActivityController()
@@ -47,6 +49,7 @@ final class LiveActivityController {
             nextLabel: snapshot.nextLabel ?? "",
             isPaused: snapshot.status == .paused
         )
+        // No alertConfiguration — compact Island stays compact; lock card stays compact.
         let content = ActivityContent(state: state, staleDate: state.endDate)
 
         if let activity {

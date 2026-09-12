@@ -107,29 +107,51 @@ struct StepEditorRow: View {
     var index: Int
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: 4) {
             TextField("Step \(index + 1)", text: $step.label)
-            HStack {
-                Stepper(value: $step.durationSeconds, in: 1...10_800, step: 15) {
-                    Text(Formatters.duration(step.durationSeconds))
-                        .font(.body.monospacedDigit())
+            HStack(spacing: 0) {
+                Picker("Minutes", selection: minutesBinding) {
+                    ForEach(0...99, id: \.self) { value in
+                        Text("\(value)").tag(value)
+                    }
                 }
+                .pickerStyle(.wheel)
+                .frame(maxWidth: .infinity)
+                .labelsHidden()
+                .accessibilityLabel("Minutes")
+
+                Text("min")
+                    .font(.footnote.weight(.semibold))
+                    .foregroundStyle(.secondary)
+                    .frame(width: 36, alignment: .leading)
+
+                Picker("Seconds", selection: secondsBinding) {
+                    ForEach(0...59, id: \.self) { value in
+                        Text(String(format: "%02d", value)).tag(value)
+                    }
+                }
+                .pickerStyle(.wheel)
+                .frame(maxWidth: .infinity)
+                .labelsHidden()
+                .accessibilityLabel("Seconds")
+
+                Text("sec")
+                    .font(.footnote.weight(.semibold))
+                    .foregroundStyle(.secondary)
+                    .frame(width: 36, alignment: .leading)
             }
-            HStack(spacing: 12) {
-                labeledNumber("m", value: minutesBinding, range: 0...180)
-                labeledNumber("s", value: secondsBinding, range: 0...59)
-            }
-            .font(.subheadline)
+            .frame(height: 120)
+            .clipped()
         }
         .padding(.vertical, 4)
     }
 
     private var minutesBinding: Binding<Int> {
         Binding(
-            get: { step.durationSeconds / 60 },
+            get: { min(99, step.durationSeconds / 60) },
             set: { minutes in
                 let seconds = step.durationSeconds % 60
-                step.durationSeconds = max(1, minutes * 60 + seconds)
+                step.durationSeconds = max(0, minutes) * 60 + seconds
             }
         )
     }
@@ -138,23 +160,9 @@ struct StepEditorRow: View {
         Binding(
             get: { step.durationSeconds % 60 },
             set: { seconds in
-                let minutes = step.durationSeconds / 60
-                step.durationSeconds = max(1, minutes * 60 + seconds)
+                let minutes = min(99, step.durationSeconds / 60)
+                step.durationSeconds = minutes * 60 + min(59, max(0, seconds))
             }
         )
-    }
-
-    private func labeledNumber(_ unit: String, value: Binding<Int>, range: ClosedRange<Int>) -> some View {
-        HStack(spacing: 4) {
-            TextField(unit, value: value, format: .number)
-                .keyboardType(.numberPad)
-                .multilineTextAlignment(.trailing)
-                .frame(width: 52)
-                .padding(.horizontal, 8)
-                .padding(.vertical, 6)
-                .background(.fill.tertiary, in: RoundedRectangle(cornerRadius: 8))
-            Text(unit)
-                .foregroundStyle(.secondary)
-        }
     }
 }
