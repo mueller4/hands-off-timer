@@ -18,7 +18,11 @@ struct HandsOffTimerApp: App {
                         // Promote the firing alarm so snapshot sync does not cancel it.
                         // Engine already advanced; this is output-only.
                         AlarmKitGateway.shared.noteNaturalEnd(event)
-                        Haptics.light()
+                        // Light haptic when foregrounded only (BUG-2). Not Silent-gated.
+                        // AlarmKit sound is independent and stays `.default`.
+                        if UIApplication.shared.applicationState == .active {
+                            Haptics.light()
+                        }
                     }
                     engine.onSnapshot = { snap in
                         AlarmKitGateway.shared.sync(snap)

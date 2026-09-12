@@ -19,6 +19,7 @@ Open `HandsOffTimer.xcodeproj` on a Mac. Scheme **HandsOffTimer**. iPhone simula
   - Natural step end → the already-scheduled AlarmKit alarm for that step starts alerting and **stays until the user acknowledges** (system stop / OK / tap-through).
   - Skip → cancel the pending (not-yet-fired) alarm. No AlarmKit alert.
   - Stop → `cancelAllForRun()` (cancel pending + stop alerting) and end the Live Activity.
+  - **Start (new chain from Home)** → same teardown as Stop *before* `engine.start`: `LiveActivityController.endForRun()` then `AlarmKitGateway.cancelAllForRun()`. A leftover alerting alarm (user didn’t OK, or force-quit) must not keep sounding beside the new run (BUG-1).
   - Pause → cancel pending (not-yet-fired) schedules; resume reschedules remaining wall-clock ends. Alerting alarms are not cancelled.
   - Home title is **Hands-Off Timer** (locked display name).
 - **AcknowledgeStepIntent** (`LiveActivityIntent`) runs on OK. It stops that AlarmKit alarm, removes the id from `alertingIDs`, and posts `Notification.Name.handsOffOpenRun`. Navigation + bookkeeping only — never mutates the engine.
@@ -26,6 +27,7 @@ Open `HandsOffTimer.xcodeproj` on a Mac. Scheme **HandsOffTimer**. iPhone simula
 - Live Activity content carries `stepIndex`, `stepCount`, `label`, `endDate`, `nextLabel` (plus `isPaused` so a paused island does not keep counting). Default presentation is **compact** Island (glyph + mm:ss) + compact Lock Screen card. Expanded regions exist only for user expansion. `Activity.request` / `update` never pass `alertConfiguration`.
 - Active-run session is snapshotted to disk so a force-quit can restore the already-advanced step (best-effort; not reboot survival).
 - The widget extension (`HandsOffTimerWidgets`) hosts both the chain Live Activity and the AlarmKit alert Live Activity (`StepEndAlarmActivity`) so the system has a presentation and does not dismiss the alerting alarm unexpectedly.
+- Natural-end **haptic** (`Haptics.light`) runs only when `UIApplication.shared.applicationState == .active` (BUG-2). Not Silent-gated. AlarmKit sound is independent and stays `.default`. Skip does not fire `onNaturalEnd`, so Skip stays silent and haptic-free.
 - `NotificationGateway` is a **dead stub**. Do not schedule from it. Leftover `UNUserNotificationCenter` taps in `AppDelegate` only post `handsOffOpenRun` (navigation).
 
 ## Restore / force-quit (do not cancel an alerting alarm)
@@ -39,6 +41,7 @@ On every `sync` / `apply`:
 3. `cancel` / `stop` of those IDs is forbidden except:
    - user OK / `AcknowledgeStepIntent` (`noteAcknowledged`)
    - explicit Stop (`cancelAllForRun` / `tearDownAll`)
+   - **new Home Start** (`cancelAllForRun` before `engine.start` — BUG-1)
 4. Still-scheduled system alarms whose fire date matches an upcoming end are **adopted** (same UUID) instead of cancelled-and-recreated.
 
 Still-scheduled leftovers that are not alerting and not adopted are cancelled so a relaunch does not double-schedule.
@@ -94,6 +97,7 @@ On a physical iPhone running iOS 26:
 4. When step 1 ends, step 2 must already be counting in-app **and** the AlarmKit alarm must keep sounding until you tap OK / stop. Acknowledging must **not** pause step 2.
 5. Skip a step: no alarm.
 6. Stop: outstanding alarms cancel; Island / Lock Screen activity ends.
+7. **Start after leftover alarm (BUG-1):** run a short step, let it end, do **not** tap OK, go back to Home if needed, Start another chain. The old alarm must stop; the new run’s Island/Lock card is for the new chain only.
 7. Confirm the Island stays **compact** (glyph + mm:ss) while unlocked; expand only on long-press. Lock Screen card is a single compact row.
 8. **Force-quit restore:** start a 2-step chain (~15s + ~15s). Force-quit during step 1 near the end, **or** while the step-end alarm is sounding. Relaunch. The alarm must still sound until OK. Step 2 (or the current wall-clock step) must already be running / correct. OK must not pause or rewind the engine.
 9. **Catch-up (optional):** start a 3-step chain of short steps, background the app until at least two ends have elapsed, foreground. Engine should already be on the current step; each missed *natural* end should have produced an acknowledge-required alarm (Skip remains silent).
