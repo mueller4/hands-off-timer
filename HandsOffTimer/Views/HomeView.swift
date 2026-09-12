@@ -134,6 +134,10 @@ struct HomeView: View {
         }
         guard let chain = router.pendingStart else { return }
         router.pendingStart = nil
+        // Same teardown as Stop: a prior run may still be alerting (user didn't OK,
+        // or force-quit). New Start must not leave those alarms or a stale Island.
+        await LiveActivityController.shared.endForRun()
+        AlarmKitGateway.shared.cancelAllForRun()
         engine.start(chain: chain)
         router.showRun = true
     }

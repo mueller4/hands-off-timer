@@ -68,8 +68,8 @@ final class AlarmKitGateway {
         pendingByStep = pendingByStep.filter { $0.value.id != id }
     }
 
-    /// User tapped Stop. Cancel scheduled + alerting alarms for this run.
-    /// Does not touch ChainEngine — the caller already stopped it.
+    /// Stop, or Home Start of a new chain. Cancel scheduled + alerting alarms
+    /// for the prior run. Does not touch ChainEngine.
     func cancelAllForRun() {
         tearDownAll()
     }

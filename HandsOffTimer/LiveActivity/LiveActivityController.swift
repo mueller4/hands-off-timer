@@ -33,7 +33,7 @@ final class LiveActivityController {
     private func apply(_ snapshot: EngineSnapshot) async {
         switch snapshot.status {
         case .idle, .completed:
-            await end()
+            await endForRun()
         case .running, .paused:
             await upsert(snapshot)
         }
@@ -61,9 +61,17 @@ final class LiveActivityController {
         activity = try? Activity.request(attributes: attributes, content: content, pushType: nil)
     }
 
-    private func end() async {
-        guard let activity else { return }
-        await activity.end(nil, dismissalPolicy: .immediate)
-        self.activity = nil
+    /// Stop / new Home Start. Ends Island + Lock card for the prior run, including
+    /// any system leftover after force-quit. Does not touch ChainEngine.
+    func endForRun() async {
+        lastSignature = ""
+        if let activity {
+            await activity.end(nil, dismissalPolicy: .immediate)
+            self.activity = nil
+        }
+        for leftover in Activity<ChainActivityAttributes>.activities {
+            await leftover.end(nil, dismissalPolicy: .immediate)
+        }
+        activity = nil
     }
 }
