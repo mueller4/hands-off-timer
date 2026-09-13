@@ -22,7 +22,7 @@ Open `HandsOffTimer.xcodeproj` on a Mac. Scheme **HandsOffTimer**. iPhone simula
   - **Start (new chain from Home)** → same teardown as Stop *before* `engine.start`: `LiveActivityController.endForRun()` then `AlarmKitGateway.cancelAllForRun()`. A leftover alerting alarm (user didn’t OK, or force-quit) must not keep sounding beside the new run (BUG-1).
   - Pause → cancel pending (not-yet-fired) schedules; resume reschedules remaining wall-clock ends. Alerting alarms are not cancelled.
   - Home title is **Hands-Off Timer** (locked display name).
-- **AcknowledgeStepIntent** (`LiveActivityIntent`) runs on OK. It stops that AlarmKit alarm, removes the id from `alertingIDs`, and posts `Notification.Name.handsOffOpenRun`. Navigation + bookkeeping only — never mutates the engine.
+- **AcknowledgeStepIntent** (`LiveActivityIntent`) runs on OK. It stops that AlarmKit alarm and removes the id from `alertingIDs`. `openAppWhenRun` is **false** — OK does **not** post `.handsOffOpenRun` and does **not** foreground the app or present Run (BUG-LA5). Engine already advanced; next step keeps running. Island / deep-link / leftover `AppDelegate` notification taps still post `.handsOffOpenRun`. Foregrounding the app yourself still shows Run when a run is active. Never mutates the engine.
 - Persistence is **Codable + FileManager** (Application Support), not SwiftData — fewer moving parts for MVP.
 - Live Activity content carries `stepIndex`, `stepCount`, `label`, `endDate` (always a **future** date while running), `remainingText` (frozen mm:ss when paused), `nextLabel`, `isPaused`. Default presentation is **compact** Island (glyph + mm:ss) + compact Lock Screen card. Expanded regions exist only for user long-press. `Activity.request` / `update` never pass `alertConfiguration`.
 - Countdown uses `Text(endDate, style: .timer)` (not `Date.now...endDate` — a zero-length range renders **blank**). Paused shows frozen `remainingText`. Controller signature rounds the deadline to whole seconds so the 20 Hz engine tick does not spam `Activity.update` (that throttles presentation and hides the timer). `staleDate` is `endDate + 60s`, not `endDate`.
@@ -114,7 +114,7 @@ On a physical iPhone running iOS 26:
 1. Allow AlarmKit on first Start.
 2. Turn **Silent** on and enable a **Focus**.
 3. Run a 2-step chain (~10s + ~10s).
-4. When step 1 ends, step 2 must already be counting in-app **and** the AlarmKit alarm must keep sounding until you tap OK / stop. Acknowledging must **not** pause step 2.
+4. When step 1 ends, step 2 must already be counting in-app **and** the AlarmKit alarm must keep sounding until you tap OK / stop. Acknowledging must **not** pause step 2. **Hands-off OK (BUG-LA5):** with the app in the background, tap OK — alarm dismisses; the app must **not** come to the foreground / Run. Next step continues. Long-press Island (or tap Live Activity) still opens Run when a run is active.
 5. Skip a step: no alarm.
 6. Stop: outstanding alarms cancel; Island / Lock Screen activity ends.
 7. **Start after leftover alarm (BUG-1):** run a short step, let it end, do **not** tap OK, go back to Home if needed, Start another chain. The old alarm must stop; the new run’s Island/Lock card is for the new chain only.

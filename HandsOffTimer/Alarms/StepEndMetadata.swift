@@ -13,6 +13,7 @@ public struct StepEndMetadata: AlarmMetadata {
 }
 
 extension Notification.Name {
-    /// Posted when the user acknowledges a step-end alarm. Navigation only — never mutate the engine.
+    /// Posted by Island / deep-link / leftover local-notification taps to open Run.
+    /// Not posted by AlarmKit OK (`AcknowledgeStepIntent`) — OK must not foreground the app.
     public static let handsOffOpenRun = Notification.Name("handsOff.openRun")
 }

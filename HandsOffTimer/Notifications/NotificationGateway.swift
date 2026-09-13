@@ -4,9 +4,9 @@ import Foundation
 /// Natural step-end breakthrough uses AlarmKit (`AlarmKitGateway`) only.
 /// Do not schedule, cancel, or present from this type.
 ///
-/// `Notification.Name.handsOffOpenRun` lives next to `StepEndMetadata` so the
-/// widget extension can share it with `AcknowledgeStepIntent`. AppDelegate still
-/// posts that name for leftover local-notification taps (navigation only).
+/// `Notification.Name.handsOffOpenRun` lives next to `StepEndMetadata`.
+/// AppDelegate posts that name for leftover local-notification taps (navigation only).
+/// AlarmKit OK does **not** post it (`AcknowledgeStepIntent.openAppWhenRun == false`).
 @MainActor
 final class NotificationGateway {
     static let shared = NotificationGateway()
