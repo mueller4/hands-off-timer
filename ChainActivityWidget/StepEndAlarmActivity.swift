@@ -4,6 +4,7 @@ import WidgetKit
 
 /// Compact AlarmKit presentation so the system keeps the alerting alarm until OK.
 /// Expanded Island content is only shown when the user expands; default is compact.
+/// Type is one step larger so Lock/Home/Watch-mirrored alerts read at a glance.
 struct StepEndAlarmActivity: Widget {
     var body: some WidgetConfiguration {
         ActivityConfiguration(for: AlarmAttributes<StepEndMetadata>.self) { context in
@@ -12,19 +13,22 @@ struct StepEndAlarmActivity: Widget {
             DynamicIsland {
                 DynamicIslandExpandedRegion(.leading) {
                     Text(context.attributes.metadata?.stepLabel ?? "Step ended")
-                        .font(.subheadline.weight(.semibold))
+                        .font(.body.weight(.semibold))
                         .lineLimit(1)
+                        .minimumScaleFactor(0.8)
                 }
                 DynamicIslandExpandedRegion(.trailing) {
                     Image(systemName: "alarm.fill")
+                        .font(.title3.weight(.semibold))
                         .imageScale(.medium)
                 }
             } compactLeading: {
                 Image(systemName: "alarm.fill")
+                    .font(.body.weight(.semibold))
                     .imageScale(.medium)
             } compactTrailing: {
                 Text("OK")
-                    .font(.caption2.weight(.semibold))
+                    .font(.caption.weight(.bold))
                     .fixedSize()
             } minimal: {
                 Image(systemName: "alarm.fill")
@@ -38,18 +42,19 @@ struct StepEndAlarmActivity: Widget {
         HStack(alignment: .center, spacing: 8) {
             HStack(spacing: 6) {
                 Image(systemName: "alarm.fill")
+                    .font(.title3.weight(.semibold))
                     .imageScale(.medium)
                 Text(label(context))
-                    .font(.subheadline.weight(.semibold))
+                    .font(.body.weight(.semibold))
                     .lineLimit(1)
-                    .minimumScaleFactor(0.75)
+                    .minimumScaleFactor(0.8)
             }
             .layoutPriority(0)
 
             Spacer(minLength: 8)
 
             Text("OK")
-                .font(.caption.weight(.semibold))
+                .font(.subheadline.weight(.semibold))
                 .fixedSize()
                 .layoutPriority(1)
         }
