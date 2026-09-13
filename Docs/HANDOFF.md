@@ -25,6 +25,7 @@ Open `HandsOffTimer.xcodeproj` on a Mac. Scheme **HandsOffTimer**. iPhone simula
 - **AcknowledgeStepIntent** (`LiveActivityIntent`) runs on OK. It stops that AlarmKit alarm, removes the id from `alertingIDs`, and posts `Notification.Name.handsOffOpenRun`. Navigation + bookkeeping only — never mutates the engine.
 - Persistence is **Codable + FileManager** (Application Support), not SwiftData — fewer moving parts for MVP.
 - Live Activity content carries `stepIndex`, `stepCount`, `label`, `endDate`, `nextLabel` (plus `isPaused` so a paused island does not keep counting). Default presentation is **compact** Island (glyph + mm:ss) + compact Lock Screen card. Expanded regions exist only for user expansion. `Activity.request` / `update` never pass `alertConfiguration`.
+- Lock / Home / StandBy Live Activity is a **leading cluster** (timer glyph + step label) and **trailing** countdown. The HStack uses `frame(maxWidth: .infinity)` so `Spacer` actually pushes time to the trailing edge (without that, the banner hugs leading). Compact Island trailing uses intrinsic `fixedSize()` / `caption2` monospacedDigit — no `minWidth` gutter.
 - Active-run session is snapshotted to disk so a force-quit can restore the already-advanced step (best-effort; not reboot survival).
 - The widget extension (`HandsOffTimerWidgets`) hosts both the chain Live Activity and the AlarmKit alert Live Activity (`StepEndAlarmActivity`) so the system has a presentation and does not dismiss the alerting alarm unexpectedly.
 - Natural-end **haptic** (`Haptics.light`) runs only when `UIApplication.shared.applicationState == .active` (BUG-2). Not Silent-gated. AlarmKit sound is independent and stays `.default`. Skip does not fire `onNaturalEnd`, so Skip stays silent and haptic-free.
@@ -77,6 +78,24 @@ Use the iOS 26.0 initializer instead: `Alert(title:stopButton:)` with an **OK** 
 
 Schedule failures are logged with `os.Logger` (subsystem `com.mueller4.HandsOffTimer`, category `AlarmKit`). Sound remains `.default`.
 
+## Apple Watch (no companion app)
+
+AlarmKit **system-forwards** step-end alerts to a paired Apple Watch (WWDC25: StandBy and Watch when paired). That is system UI, not a Watch app we ship.
+
+**There is no public iOS 26 AlarmKit / ActivityKit API** to prefer Watch-only, suppress iPhone audio, or pick a presentation device. `AlarmConfiguration` exposes schedule, attributes, stop/secondary intents, and `sound` (we keep `.default`). Muting iPhone sound or skipping AlarmKit would break Silent/Focus breakthrough — we will not fake Watch-only that way. No watchOS target.
+
+Honest user guidance (do not invent Settings paths):
+
+- Dual-ring (iPhone + Watch) is **system behavior** for AlarmKit, not something Hands-Off Timer can route.
+- Clock’s Sleep Schedule **Always Play on iPhone** (iOS 26.4, Health / Clock → Sleep) is the *inverse* (force iPhone too) and applies to **Sleep Schedule only**, not third-party AlarmKit.
+- Apple Watch app → My Watch → **Notifications** → Mirror iPhone is for **notifications**, not AlarmKit alarms.
+- Apple Watch app → My Watch → **Clock** → Push Alerts from iPhone is for the **Clock** app, not AlarmKit.
+- Cover-to-mute on Watch can silence a Watch alert in-progress; it does not stop the iPhone alarm.
+
+Do not add an in-app Watch-pairing tip: `WCSession.isPaired` without a Watch target is not a reliable signal.
+
+Engine / OK / Skip / Stop are unchanged.
+
 **Command Ld failed:** expand the failed `Ld` step in Xcode’s Report navigator — the real line is above the generic “nonzero exit code.” This project now:
 
 - Links **AlarmKit** + **AppIntents** on the app, and **AlarmKit** + **AppIntents** + WidgetKit + ActivityKit on the widget (frameworks phase **and** `OTHER_LDFLAGS`)
@@ -98,9 +117,10 @@ On a physical iPhone running iOS 26:
 5. Skip a step: no alarm.
 6. Stop: outstanding alarms cancel; Island / Lock Screen activity ends.
 7. **Start after leftover alarm (BUG-1):** run a short step, let it end, do **not** tap OK, go back to Home if needed, Start another chain. The old alarm must stop; the new run’s Island/Lock card is for the new chain only.
-7. Confirm the Island stays **compact** (glyph + mm:ss) while unlocked; expand only on long-press. Lock Screen card is a single compact row.
-8. **Force-quit restore:** start a 2-step chain (~15s + ~15s). Force-quit during step 1 near the end, **or** while the step-end alarm is sounding. Relaunch. The alarm must still sound until OK. Step 2 (or the current wall-clock step) must already be running / correct. OK must not pause or rewind the engine.
-9. **Catch-up (optional):** start a 3-step chain of short steps, background the app until at least two ends have elapsed, foreground. Engine should already be on the current step; each missed *natural* end should have produced an acknowledge-required alarm (Skip remains silent).
+8. Compact Island hugs **glyph + time** with little trailing gutter. Lock / Home banner is **leading** label, **trailing** mm:ss (not all left).
+9. **Force-quit restore:** start a 2-step chain (~15s + ~15s). Force-quit during step 1 near the end, **or** while the step-end alarm is sounding. Relaunch. The alarm must still sound until OK. Step 2 (or the current wall-clock step) must already be running / correct. OK must not pause or rewind the engine.
+10. **Catch-up (optional):** start a 3-step chain of short steps, background the app until at least two ends have elapsed, foreground. Engine should already be on the current step; each missed *natural* end should have produced an acknowledge-required alarm (Skip remains silent).
+11. **Watch:** with a paired Watch, expect the system to also alert on the Watch. Hands-Off Timer cannot silence iPhone and keep Watch. See “Apple Watch” above.
 
 ## Known gaps (device / Mac)
 
@@ -109,6 +129,7 @@ On a physical iPhone running iOS 26:
 - Icon Composer `.icon` Liquid Glass is deferred; v4 1024 + dark/tinted appearances are wired.
 - No unit-test target in Xcode (Linux builder cannot run `xcodebuild`). Engine behavior is covered by the mirrored TypeScript tests in the web preview workspace.
 - Reboot (not force-quit) is not a survival target for the in-app run UI. AlarmKit schedules that the system still holds may still alert.
+- **Watch dual-ring** is a system AlarmKit limitation (no public Watch-only API). See “Apple Watch” above.
 
 ## Don’t add
 
