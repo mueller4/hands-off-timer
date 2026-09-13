@@ -51,7 +51,7 @@ See [Docs/PRD-v1.md](Docs/PRD-v1.md) and [Docs/DESIGN-v1.md](Docs/DESIGN-v1.md).
 
 - `ChainEngine` owns progression with wall-clock deadlines. It does **not** import AlarmKit, UserNotifications, or ActivityKit.
 - `AlarmKitGateway` schedules a one-shot AlarmKit alarm for the current step’s end from `snapshot.upcomingEnds`. Natural end promotes that alarm so it keeps ringing until the user acknowledges; Skip cancels it (never fired); Stop cancels outstanding alarms for the run.
-- AlarmKit / notification callbacks are **navigation + acknowledge only** (`Notification.Name.handsOffOpenRun`) and never call pause/stop/skip on the engine.
+- AlarmKit OK (`AcknowledgeStepIntent`) stops that alarm only — it does **not** open the app. Island / leftover notification taps still post `Notification.Name.handsOffOpenRun` to open Run. Callbacks never call pause/stop/skip on the engine.
 - `LiveActivityController` is best-effort ActivityKit, driven by the same snapshot. Compact Island by default; no `alertConfiguration` (that would expand the Island or show a full-width unlocked banner).
 
 ## Deferred

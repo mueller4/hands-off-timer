@@ -16,8 +16,9 @@ struct ContentView: View {
                 RunView()
             }
             .onReceive(NotificationCenter.default.publisher(for: .handsOffOpenRun)) { _ in
-                // AlarmKit OK / leftover notification tap: open Run on the already-advanced
-                // engine state. Never pause, stop, reset, or delay.
+                // Island / deep-link / leftover notification tap: open Run on the
+                // already-advanced engine state. AlarmKit OK does not post this.
+                // Never pause, stop, reset, or delay.
                 if engine.snapshot.status == .running || engine.snapshot.status == .paused {
                     router.showRun = true
                 }

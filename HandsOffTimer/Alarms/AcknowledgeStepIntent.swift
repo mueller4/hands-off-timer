@@ -2,7 +2,8 @@ import AlarmKit
 import AppIntents
 import Foundation
 
-/// System stop / OK on a step-end alarm. Opens Run on the already-advanced engine state.
+/// System stop / OK on a step-end alarm.
+/// Stops that alarm only. Does **not** open the app or present Run.
 /// Must never pause, stop, skip, or reschedule ChainEngine.
 ///
 /// `LiveActivityIntent` runs in the **app** process. Keep this type in the app target
@@ -12,7 +13,9 @@ public struct AcknowledgeStepIntent: LiveActivityIntent {
     public static var description = IntentDescription(
         "Acknowledges a step-end alarm. The next timer is already running."
     )
-    public static var openAppWhenRun: Bool = true
+    /// Hands-off: OK must not force-open the app. Island / deep-link / leftover
+    /// notification taps still post `.handsOffOpenRun` from their own paths.
+    public static var openAppWhenRun: Bool = false
 
     @Parameter(title: "Alarm ID")
     public var alarmID: String
@@ -29,9 +32,6 @@ public struct AcknowledgeStepIntent: LiveActivityIntent {
         if let id = UUID(uuidString: alarmID) {
             try? AlarmManager.shared.stop(id: id)
             await AlarmKitGateway.shared.noteAcknowledged(id: id)
-        }
-        await MainActor.run {
-            NotificationCenter.default.post(name: .handsOffOpenRun, object: nil)
         }
         return .result()
     }
