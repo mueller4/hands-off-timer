@@ -48,8 +48,7 @@ struct ChainActivityWidget: Widget {
                 countdown(context)
                     .font(.caption2.monospacedDigit().weight(.semibold))
                     .lineLimit(1)
-                    .minimumScaleFactor(0.6)
-                    .frame(maxWidth: 54, alignment: .trailing)
+                    .fixedSize()
             } minimal: {
                 Image(systemName: "timer")
                     .imageScale(.small)
