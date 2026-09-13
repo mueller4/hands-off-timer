@@ -17,11 +17,14 @@ final class LiveActivityController {
     }
 
     func sync(_ snapshot: EngineSnapshot) {
+        // Round the deadline to whole seconds so 20 Hz engine ticks do not
+        // spam Activity.update (that throttles the presentation and blanks the timer).
+        let deadlineBucket = Int((snapshot.endDate ?? .distantPast).timeIntervalSince1970)
         let signature = [
             snapshot.status.rawValue,
             snapshot.sessionId?.uuidString ?? "",
             String(snapshot.stepIndex),
-            String(snapshot.endDate?.timeIntervalSince1970 ?? 0),
+            String(deadlineBucket),
             snapshot.status == .paused ? "p" : "r",
         ].joined(separator: "|")
         guard signature != lastSignature else { return }
@@ -41,16 +44,29 @@ final class LiveActivityController {
 
     private func upsert(_ snapshot: EngineSnapshot) async {
         guard ActivityAuthorizationInfo().areActivitiesEnabled else { return }
+        let remaining = max(0, snapshot.remaining)
+        let now = Date()
+        let rawEnd = snapshot.endDate ?? now.addingTimeInterval(remaining)
+        // Timer Text collapses when endDate <= now. Keep a future date while running.
+        let endDate: Date
+        if snapshot.status == .running {
+            endDate = rawEnd.timeIntervalSince(now) >= 1 ? rawEnd : now.addingTimeInterval(max(remaining, 1))
+        } else {
+            endDate = rawEnd
+        }
         let state = ChainActivityAttributes.ContentState(
             stepIndex: snapshot.stepIndex,
             stepCount: snapshot.stepCount,
             label: snapshot.label,
-            endDate: snapshot.endDate ?? Date().addingTimeInterval(snapshot.remaining),
+            endDate: endDate,
+            remainingText: Formatters.remaining(remaining),
             nextLabel: snapshot.nextLabel ?? "",
             isPaused: snapshot.status == .paused
         )
         // No alertConfiguration — compact Island stays compact; lock card stays compact.
-        let content = ActivityContent(state: state, staleDate: state.endDate)
+        // staleDate must not equal endDate: a slightly-past deadline would dim/hide the
+        // countdown the moment the step is about to end.
+        let content = ActivityContent(state: state, staleDate: endDate.addingTimeInterval(60))
 
         if let activity {
             await activity.update(content)
