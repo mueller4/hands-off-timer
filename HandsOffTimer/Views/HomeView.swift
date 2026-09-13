@@ -5,6 +5,7 @@ struct HomeView: View {
     @Environment(ChainEngine.self) private var engine
     @Environment(AppRouter.self) private var router
     @State private var showPermission = false
+    @State private var pendingDelete: TimerChain?
 
     var body: some View {
         NavigationStack {
@@ -36,6 +37,21 @@ struct HomeView: View {
             } message: {
                 Text(AlarmKitGateway.purpose)
             }
+            .alert(
+                "Delete “\(pendingDelete?.displayName ?? "")”?",
+                isPresented: Binding(
+                    get: { pendingDelete != nil },
+                    set: { if !$0 { pendingDelete = nil } }
+                )
+            ) {
+                Button("Delete chain", role: .destructive) {
+                    if let pendingDelete { store.delete(pendingDelete) }
+                    pendingDelete = nil
+                }
+                Button("Cancel", role: .cancel) { pendingDelete = nil }
+            } message: {
+                Text("This chain will be removed from this device.")
+            }
         }
     }
 
@@ -46,7 +62,7 @@ struct HomeView: View {
                     chain: chain,
                     onEdit: { router.openEdit(chain) },
                     onStart: { start(chain) },
-                    onDelete: { store.delete($0) }
+                    onRequestDelete: { pendingDelete = $0 }
                 )
             }
         }
@@ -93,14 +109,13 @@ struct HomeView: View {
     }
 }
 
-/// Confirmation is attached to this row (not the NavigationStack) so the sheet
-/// is sourced from the chain being deleted. Swipe Edit / Start are unchanged.
+/// Swipe / context menu only request delete. Confirm lives on the parent so it
+/// actually appears (row-level confirmationDialog after swipeActions is flaky).
 private struct ChainRowView: View {
     let chain: TimerChain
     let onEdit: () -> Void
     let onStart: () -> Void
-    let onDelete: (TimerChain) -> Void
-    @State private var confirmDelete = false
+    let onRequestDelete: (TimerChain) -> Void
 
     var body: some View {
         HStack(spacing: 12) {
@@ -127,7 +142,7 @@ private struct ChainRowView: View {
         }
         .swipeActions(edge: .trailing, allowsFullSwipe: false) {
             Button(role: .destructive) {
-                confirmDelete = true
+                onRequestDelete(chain)
             } label: {
                 Label("Delete", systemImage: "trash")
             }
@@ -141,22 +156,10 @@ private struct ChainRowView: View {
                 Label("Edit", systemImage: "pencil")
             }
             Button(role: .destructive) {
-                confirmDelete = true
+                onRequestDelete(chain)
             } label: {
                 Label("Delete", systemImage: "trash")
             }
-        }
-        .confirmationDialog(
-            "Delete “\(chain.displayName)”?",
-            isPresented: $confirmDelete,
-            titleVisibility: .visible
-        ) {
-            Button("Delete Chain", role: .destructive) {
-                onDelete(chain)
-            }
-            Button("Cancel", role: .cancel) {}
-        } message: {
-            Text("This chain will be removed from this device.")
         }
     }
 }

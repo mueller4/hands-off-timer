@@ -9,92 +9,105 @@ struct ChainActivityWidget: Widget {
             CompactLockScreen(context: context)
         } dynamicIsland: { context in
             // Compact + minimal are the defaults. Expanded regions render only
-            // when the user long-presses / expands the Island — never as a
-            // full-width banner while unlocked.
+            // when the user long-presses the Island. Do not pass alertConfiguration
+            // from LiveActivityController — that expands / full-width unlocked banner.
             DynamicIsland {
                 DynamicIslandExpandedRegion(.leading) {
                     VStack(alignment: .leading, spacing: 2) {
                         Text(context.state.label)
-                            .font(.body.weight(.semibold))
+                            .font(.subheadline.weight(.semibold))
                             .lineLimit(1)
                             .minimumScaleFactor(0.8)
                         Text("Step \(context.state.stepIndex + 1)/\(context.state.stepCount)")
-                            .font(.footnote)
+                            .font(.caption)
                             .foregroundStyle(.secondary)
                     }
                 }
                 DynamicIslandExpandedRegion(.trailing) {
                     countdown(context)
                         .font(.title3.monospacedDigit().weight(.semibold))
-                        .fixedSize(horizontal: true, vertical: false)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.7)
+                }
+                DynamicIslandExpandedRegion(.bottom) {
+                    if context.state.isPaused {
+                        Text("Paused")
+                            .font(.caption.weight(.semibold))
+                    } else if !context.state.nextLabel.isEmpty {
+                        Text("Next \(context.state.nextLabel)")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                            .lineLimit(1)
+                    }
                 }
             } compactLeading: {
                 Image(systemName: "timer")
-                    .imageScale(.medium)
-                    .font(.body.weight(.semibold))
+                    .imageScale(.small)
+                    .font(.caption.weight(.semibold))
             } compactTrailing: {
                 countdown(context)
-                    .font(.caption.monospacedDigit().weight(.bold))
+                    .font(.caption2.monospacedDigit().weight(.semibold))
                     .lineLimit(1)
-                    .minimumScaleFactor(0.85)
-                    .fixedSize(horizontal: true, vertical: false)
+                    .minimumScaleFactor(0.6)
+                    .frame(maxWidth: 54, alignment: .trailing)
             } minimal: {
                 Image(systemName: "timer")
-                    .imageScale(.medium)
+                    .imageScale(.small)
             }
         }
     }
 
+    /// `Text(date, style: .timer)` stays visible even if endDate is slightly past.
+    /// Do not use `Date.now...endDate` — a zero-length range renders blank.
     @ViewBuilder
     private func countdown(_ context: ActivityViewContext<ChainActivityAttributes>) -> some View {
         if context.state.isPaused {
-            Text("Paused")
+            Text(context.state.remainingText)
+                .monospacedDigit()
         } else {
-            Text(timerInterval: Date.now...max(context.state.endDate, Date.now), countsDown: true)
+            Text(context.state.endDate, style: .timer)
+                .monospacedDigit()
         }
     }
 }
 
-/// Leading cluster (glyph + label) / trailing time. `frame(maxWidth: .infinity)` is
-/// required so Spacer actually pushes the countdown to the trailing edge of the banner.
-/// Type is one step larger than the compact polish pass so Lock/Home/Watch-mirrored
-/// presentations read at a glance. No minWidth frames (those pad Island trailing).
+/// One compact row: leading glyph+label, trailing mm:ss, Spacer gutter.
+/// No `fixedSize` (zero-width timer then packs everything leading).
 private struct CompactLockScreen: View {
     let context: ActivityViewContext<ChainActivityAttributes>
 
     var body: some View {
-        HStack(alignment: .center, spacing: 8) {
-            HStack(spacing: 6) {
+        HStack(alignment: .center, spacing: 10) {
+            HStack(spacing: 8) {
                 Image(systemName: "timer")
-                    .font(.title3.weight(.semibold))
+                    .font(.body.weight(.semibold))
                     .imageScale(.medium)
                 Text(context.state.label)
-                    .font(.body.weight(.semibold))
+                    .font(.subheadline.weight(.semibold))
                     .lineLimit(1)
-                    .minimumScaleFactor(0.8)
+                    .minimumScaleFactor(0.75)
             }
             .layoutPriority(0)
 
-            Spacer(minLength: 8)
+            Spacer(minLength: 12)
 
             Group {
                 if context.state.isPaused {
-                    Text("Paused")
-                        .font(.subheadline.weight(.semibold))
+                    Text(context.state.remainingText)
+                        .font(.body.monospacedDigit().weight(.semibold))
                 } else {
-                    Text(timerInterval: Date.now...max(context.state.endDate, Date.now), countsDown: true)
-                        .font(.title3.monospacedDigit().weight(.semibold))
-                        .multilineTextAlignment(.trailing)
+                    Text(context.state.endDate, style: .timer)
+                        .font(.body.monospacedDigit().weight(.semibold))
                 }
             }
             .lineLimit(1)
-            .minimumScaleFactor(0.85)
-            .fixedSize(horizontal: true, vertical: false)
+            .minimumScaleFactor(0.7)
+            .multilineTextAlignment(.trailing)
             .layoutPriority(1)
         }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(.horizontal, 12)
-        .padding(.vertical, 8)
+        .frame(maxWidth: .infinity, alignment: .center)
+        .padding(.horizontal, 16)
+        .padding(.vertical, 10)
         .activityBackgroundTint(Color.black.opacity(0.25))
         .activitySystemActionForegroundColor(.white)
     }

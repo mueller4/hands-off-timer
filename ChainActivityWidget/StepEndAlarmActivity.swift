@@ -4,7 +4,6 @@ import WidgetKit
 
 /// Compact AlarmKit presentation so the system keeps the alerting alarm until OK.
 /// Expanded Island content is only shown when the user expands; default is compact.
-/// Type is one step larger so Lock/Home/Watch-mirrored alerts read at a glance.
 struct StepEndAlarmActivity: Widget {
     var body: some WidgetConfiguration {
         ActivityConfiguration(for: AlarmAttributes<StepEndMetadata>.self) { context in
@@ -13,54 +12,55 @@ struct StepEndAlarmActivity: Widget {
             DynamicIsland {
                 DynamicIslandExpandedRegion(.leading) {
                     Text(context.attributes.metadata?.stepLabel ?? "Step ended")
-                        .font(.body.weight(.semibold))
+                        .font(.subheadline.weight(.semibold))
                         .lineLimit(1)
                         .minimumScaleFactor(0.8)
                 }
                 DynamicIslandExpandedRegion(.trailing) {
                     Image(systemName: "alarm.fill")
-                        .font(.title3.weight(.semibold))
+                        .font(.body.weight(.semibold))
                         .imageScale(.medium)
                 }
             } compactLeading: {
                 Image(systemName: "alarm.fill")
-                    .font(.body.weight(.semibold))
-                    .imageScale(.medium)
+                    .font(.caption.weight(.semibold))
+                    .imageScale(.small)
             } compactTrailing: {
                 Text("OK")
-                    .font(.caption.weight(.bold))
-                    .fixedSize()
+                    .font(.caption2.weight(.bold))
+                    .lineLimit(1)
+                    .frame(maxWidth: 28, alignment: .trailing)
             } minimal: {
                 Image(systemName: "alarm.fill")
-                    .imageScale(.medium)
+                    .imageScale(.small)
             }
         }
     }
 
     @ViewBuilder
     private func compactAlert(_ context: ActivityViewContext<AlarmAttributes<StepEndMetadata>>) -> some View {
-        HStack(alignment: .center, spacing: 8) {
-            HStack(spacing: 6) {
+        HStack(alignment: .center, spacing: 10) {
+            HStack(spacing: 8) {
                 Image(systemName: "alarm.fill")
-                    .font(.title3.weight(.semibold))
+                    .font(.body.weight(.semibold))
                     .imageScale(.medium)
                 Text(label(context))
-                    .font(.body.weight(.semibold))
+                    .font(.subheadline.weight(.semibold))
                     .lineLimit(1)
-                    .minimumScaleFactor(0.8)
+                    .minimumScaleFactor(0.75)
             }
             .layoutPriority(0)
 
-            Spacer(minLength: 8)
+            Spacer(minLength: 12)
 
             Text("OK")
                 .font(.subheadline.weight(.semibold))
-                .fixedSize()
+                .lineLimit(1)
                 .layoutPriority(1)
         }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(.horizontal, 12)
-        .padding(.vertical, 8)
+        .frame(maxWidth: .infinity, alignment: .center)
+        .padding(.horizontal, 16)
+        .padding(.vertical, 10)
         .activityBackgroundTint(Color.orange.opacity(0.35))
         .activitySystemActionForegroundColor(.white)
     }
