@@ -13,23 +13,33 @@ struct ChainActivityWidget: Widget {
             // from LiveActivityController — that expands / full-width unlocked banner.
             DynamicIsland {
                 DynamicIslandExpandedRegion(.leading) {
+                    // The leading ear does not always propose a finite width.
+                    // Without minWidth: 0 + a camera-safe cap, Text keeps its
+                    // ideal size and the Island mask clips mid-glyph (LA-2).
                     VStack(alignment: .leading, spacing: 2) {
                         Text(context.attributes.chainName)
-                            .font(.caption.weight(.semibold))
+                            .font(.subheadline.weight(.semibold))
                             .lineLimit(1)
-                            .minimumScaleFactor(0.65)
+                            .truncationMode(.tail)
+                            .allowsTightening(true)
+                            .minimumScaleFactor(0.75)
                         Text(context.state.label)
-                            .font(.caption2)
+                            .font(.caption)
                             .foregroundStyle(.secondary)
                             .lineLimit(1)
-                            .minimumScaleFactor(0.7)
+                            .truncationMode(.tail)
+                            .allowsTightening(true)
+                            .minimumScaleFactor(0.8)
                     }
+                    .frame(minWidth: 0, maxWidth: 104, alignment: .leading)
                 }
-                DynamicIslandExpandedRegion(.trailing) {
+                DynamicIslandExpandedRegion(.trailing, priority: 1) {
                     countdown(context)
                         .font(.title3.monospacedDigit().weight(.semibold))
                         .lineLimit(1)
                         .minimumScaleFactor(0.7)
+                        .multilineTextAlignment(.trailing)
+                        .layoutPriority(1)
                 }
                 DynamicIslandExpandedRegion(.bottom) {
                     if context.state.isPaused {
