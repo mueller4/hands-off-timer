@@ -14,13 +14,14 @@ struct ChainActivityWidget: Widget {
             DynamicIsland {
                 DynamicIslandExpandedRegion(.leading) {
                     VStack(alignment: .leading, spacing: 2) {
-                        Text(context.state.label)
+                        Text(context.attributes.chainName)
                             .font(.subheadline.weight(.semibold))
                             .lineLimit(1)
                             .minimumScaleFactor(0.8)
-                        Text("Step \(context.state.stepIndex + 1)/\(context.state.stepCount)")
+                        Text(context.state.label)
                             .font(.caption)
                             .foregroundStyle(.secondary)
+                            .lineLimit(1)
                     }
                 }
                 DynamicIslandExpandedRegion(.trailing) {
@@ -45,10 +46,13 @@ struct ChainActivityWidget: Widget {
                     .imageScale(.small)
                     .font(.caption.weight(.semibold))
             } compactTrailing: {
+                // Do not use `.fixedSize()` here — it blows compact sizing
+                // and ActivityKit presents expanded / full-width top chrome.
                 countdown(context)
                     .font(.caption2.monospacedDigit().weight(.semibold))
                     .lineLimit(1)
-                    .fixedSize()
+                    .minimumScaleFactor(0.6)
+                    .frame(minWidth: 0, maxWidth: 44, alignment: .trailing)
             } minimal: {
                 Image(systemName: "timer")
                     .imageScale(.small)
@@ -70,8 +74,8 @@ struct ChainActivityWidget: Widget {
     }
 }
 
-/// One compact row: leading glyph+label, trailing mm:ss, Spacer gutter.
-/// No `fixedSize` (zero-width timer then packs everything leading).
+/// One compact row: leading glyph + chain name, trailing mm:ss, Spacer gutter.
+/// Name uses layoutPriority(1) so the countdown cannot compress it to zero width.
 private struct CompactLockScreen: View {
     let context: ActivityViewContext<ChainActivityAttributes>
 
@@ -81,14 +85,14 @@ private struct CompactLockScreen: View {
                 Image(systemName: "timer")
                     .font(.body.weight(.semibold))
                     .imageScale(.medium)
-                Text(context.state.label)
+                Text(displayName)
                     .font(.subheadline.weight(.semibold))
                     .lineLimit(1)
-                    .minimumScaleFactor(0.75)
+                    .minimumScaleFactor(0.7)
             }
-            .layoutPriority(0)
+            .layoutPriority(1)
 
-            Spacer(minLength: 12)
+            Spacer(minLength: 8)
 
             Group {
                 if context.state.isPaused {
@@ -102,6 +106,7 @@ private struct CompactLockScreen: View {
             .lineLimit(1)
             .minimumScaleFactor(0.7)
             .multilineTextAlignment(.trailing)
+            .frame(minWidth: 36, maxWidth: 72, alignment: .trailing)
             .layoutPriority(1)
         }
         .frame(maxWidth: .infinity, alignment: .center)
@@ -109,5 +114,18 @@ private struct CompactLockScreen: View {
         .padding(.vertical, 10)
         .activityBackgroundTint(Color.black.opacity(0.25))
         .activitySystemActionForegroundColor(.white)
+    }
+
+    /// Chain display name is required. Step label is appended when it differs.
+    private var displayName: String {
+        let name = context.attributes.chainName.trimmingCharacters(in: .whitespacesAndNewlines)
+        let step = context.state.label.trimmingCharacters(in: .whitespacesAndNewlines)
+        if name.isEmpty {
+            return step.isEmpty ? "Hands-Off Timer" : step
+        }
+        if step.isEmpty || step.compare(name, options: .caseInsensitive) == .orderedSame {
+            return name
+        }
+        return "\(name) · \(step)"
     }
 }
