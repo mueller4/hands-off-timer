@@ -13,9 +13,11 @@ struct ChainActivityWidget: Widget {
             // from LiveActivityController — that expands / full-width unlocked banner.
             DynamicIsland {
                 DynamicIslandExpandedRegion(.leading) {
-                    // The leading ear does not always propose a finite width.
-                    // Without minWidth: 0 + a camera-safe cap, Text keeps its
-                    // ideal size and the Island mask clips mid-glyph (LA-2).
+                    // Finite width + tail truncate (PR #10) only stops trailing
+                    // overflow. The leading ear’s capsule curve still shears the
+                    // first glyph if text paints flush to the left/top mask
+                    // (LA-2). Inset from that clip path; keep minWidth 0,
+                    // modest maxWidth, and tail ellipsis for long names.
                     VStack(alignment: .leading, spacing: 2) {
                         Text(context.attributes.chainName)
                             .font(.subheadline.weight(.semibold))
@@ -31,6 +33,8 @@ struct ChainActivityWidget: Widget {
                             .allowsTightening(true)
                             .minimumScaleFactor(0.8)
                     }
+                    .padding(.leading, 10)
+                    .padding(.top, 4)
                     .frame(minWidth: 0, maxWidth: 104, alignment: .leading)
                 }
                 DynamicIslandExpandedRegion(.trailing, priority: 1) {
