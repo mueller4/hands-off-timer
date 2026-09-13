@@ -17,29 +17,43 @@ struct StepEndAlarmActivity: Widget {
                 }
                 DynamicIslandExpandedRegion(.trailing) {
                     Image(systemName: "alarm.fill")
+                        .imageScale(.medium)
                 }
             } compactLeading: {
                 Image(systemName: "alarm.fill")
+                    .imageScale(.medium)
             } compactTrailing: {
                 Text("OK")
-                    .font(.caption.weight(.semibold))
+                    .font(.caption2.weight(.semibold))
+                    .fixedSize()
             } minimal: {
                 Image(systemName: "alarm.fill")
+                    .imageScale(.medium)
             }
         }
     }
 
     @ViewBuilder
     private func compactAlert(_ context: ActivityViewContext<AlarmAttributes<StepEndMetadata>>) -> some View {
-        HStack(spacing: 8) {
-            Image(systemName: "alarm.fill")
-            Text(label(context))
-                .font(.subheadline.weight(.semibold))
-                .lineLimit(1)
-            Spacer(minLength: 4)
+        HStack(alignment: .center, spacing: 8) {
+            HStack(spacing: 6) {
+                Image(systemName: "alarm.fill")
+                    .imageScale(.medium)
+                Text(label(context))
+                    .font(.subheadline.weight(.semibold))
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.75)
+            }
+            .layoutPriority(0)
+
+            Spacer(minLength: 8)
+
             Text("OK")
                 .font(.caption.weight(.semibold))
+                .fixedSize()
+                .layoutPriority(1)
         }
+        .frame(maxWidth: .infinity, alignment: .leading)
         .padding(.horizontal, 12)
         .padding(.vertical, 8)
         .activityBackgroundTint(Color.orange.opacity(0.35))

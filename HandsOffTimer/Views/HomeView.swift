@@ -4,7 +4,6 @@ struct HomeView: View {
     @Environment(ChainStore.self) private var store
     @Environment(ChainEngine.self) private var engine
     @Environment(AppRouter.self) private var router
-    @State private var pendingDelete: TimerChain?
     @State private var showPermission = false
 
     var body: some View {
@@ -27,22 +26,6 @@ struct HomeView: View {
                     .accessibilityLabel("New Chain")
                 }
             }
-            .confirmationDialog(
-                "Delete “\(pendingDelete?.displayName ?? "")”?",
-                isPresented: Binding(
-                    get: { pendingDelete != nil },
-                    set: { if !$0 { pendingDelete = nil } }
-                ),
-                titleVisibility: .visible
-            ) {
-                Button("Delete chain", role: .destructive) {
-                    if let pendingDelete { store.delete(pendingDelete) }
-                    pendingDelete = nil
-                }
-                Button("Cancel", role: .cancel) { pendingDelete = nil }
-            } message: {
-                Text("This chain will be removed from this device.")
-            }
             .alert("Stay in motion", isPresented: $showPermission) {
                 Button("Allow") {
                     Task { await startPending(requestPermission: true) }
@@ -59,45 +42,12 @@ struct HomeView: View {
     private var list: some View {
         List {
             ForEach(store.chains) { chain in
-                HStack(spacing: 12) {
-                    Button {
-                        router.openEdit(chain)
-                    } label: {
-                        VStack(alignment: .leading, spacing: 2) {
-                            Text(chain.displayName)
-                                .font(.body.weight(.semibold))
-                                .foregroundStyle(.primary)
-                            Text(Formatters.stepSummary(count: chain.steps.count, totalSeconds: chain.totalSeconds))
-                                .font(.footnote)
-                                .foregroundStyle(.secondary)
-                        }
-                    }
-                    .buttonStyle(.plain)
-                    Spacer(minLength: 8)
-                    Button {
-                        start(chain)
-                    } label: {
-                        Label("Start", systemImage: "play.fill")
-                            .labelStyle(.titleAndIcon)
-                            .font(.subheadline.weight(.semibold))
-                    }
-                    .buttonStyle(.borderedProminent)
-                    .tint(.green)
-                    .controlSize(.small)
-                }
-                .swipeActions(edge: .trailing, allowsFullSwipe: false) {
-                    Button(role: .destructive) {
-                        pendingDelete = chain
-                    } label: {
-                        Label("Delete", systemImage: "trash")
-                    }
-                    Button {
-                        router.openEdit(chain)
-                    } label: {
-                        Label("Edit", systemImage: "pencil")
-                    }
-                    .tint(.blue)
-                }
+                ChainRowView(
+                    chain: chain,
+                    onEdit: { router.openEdit(chain) },
+                    onStart: { start(chain) },
+                    onDelete: { store.delete($0) }
+                )
             }
         }
     }
@@ -140,5 +90,73 @@ struct HomeView: View {
         AlarmKitGateway.shared.cancelAllForRun()
         engine.start(chain: chain)
         router.showRun = true
+    }
+}
+
+/// Confirmation is attached to this row (not the NavigationStack) so the sheet
+/// is sourced from the chain being deleted. Swipe Edit / Start are unchanged.
+private struct ChainRowView: View {
+    let chain: TimerChain
+    let onEdit: () -> Void
+    let onStart: () -> Void
+    let onDelete: (TimerChain) -> Void
+    @State private var confirmDelete = false
+
+    var body: some View {
+        HStack(spacing: 12) {
+            Button(action: onEdit) {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(chain.displayName)
+                        .font(.body.weight(.semibold))
+                        .foregroundStyle(.primary)
+                    Text(Formatters.stepSummary(count: chain.steps.count, totalSeconds: chain.totalSeconds))
+                        .font(.footnote)
+                        .foregroundStyle(.secondary)
+                }
+            }
+            .buttonStyle(.plain)
+            Spacer(minLength: 8)
+            Button(action: onStart) {
+                Label("Start", systemImage: "play.fill")
+                    .labelStyle(.titleAndIcon)
+                    .font(.subheadline.weight(.semibold))
+            }
+            .buttonStyle(.borderedProminent)
+            .tint(.green)
+            .controlSize(.small)
+        }
+        .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+            Button(role: .destructive) {
+                confirmDelete = true
+            } label: {
+                Label("Delete", systemImage: "trash")
+            }
+            Button(action: onEdit) {
+                Label("Edit", systemImage: "pencil")
+            }
+            .tint(.blue)
+        }
+        .contextMenu {
+            Button(action: onEdit) {
+                Label("Edit", systemImage: "pencil")
+            }
+            Button(role: .destructive) {
+                confirmDelete = true
+            } label: {
+                Label("Delete", systemImage: "trash")
+            }
+        }
+        .confirmationDialog(
+            "Delete “\(chain.displayName)”?",
+            isPresented: $confirmDelete,
+            titleVisibility: .visible
+        ) {
+            Button("Delete Chain", role: .destructive) {
+                onDelete(chain)
+            }
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            Text("This chain will be removed from this device.")
+        }
     }
 }
