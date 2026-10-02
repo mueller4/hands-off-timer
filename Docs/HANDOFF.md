@@ -142,9 +142,9 @@ On a physical iPhone running iOS 26:
 Glance + open only. No Start / Pause / Skip / Stop on the widget.
 
 - Shared file: App Group `group.com.mueller4.HandsOffTimer`, `home-widget.json`. The app writes it from `ChainStore` + `EngineSnapshot` (`HomeWidgetPublisher`). The widget reads it. ChainEngine does not import WidgetKit.
-- Idle chain: most recently started session, else most recently edited, else empty. No demo data.
+- Idle: Small shows the last-started chain (else most recently edited). Medium shows up to three unique chains, last-started first, then most recently edited. No demo data.
 - Running countdown uses the snapshot `endDate` / `upcomingEnds` (same wall clock as Run and Live Activity). Stop or complete clears the run and reloads timelines so the widget leaves Running on the next refresh. A precomputed timeline also switches to Idle at the final `endDate` if the app is suspended.
-- Deep links: `handsofftimer://home` (empty → New Chain), `handsofftimer://home?chain=<uuid>` (scroll to that chain), `handsofftimer://run` (posts `.handsOffOpenRun`, same as Island tap).
+- Deep links: `handsofftimer://home` opens the Home list (empty list → New Chain). Idle does not scroll or highlight one chain. `handsofftimer://run` posts `.handsOffOpenRun`, same as an Island tap.
 - **Remaining:** Portal App Group `group.com.mueller4.HandsOffTimer` is already on App IDs `com.mueller4.HandsOffTimer` and `com.mueller4.HandsOffTimer.HomeWidget` (team `3LW54H3BCH`). Jacob still needs to enable App Groups in Xcode Signing & Capabilities for the app and HomeWidget targets, refresh profiles, and smoke-test on a device. Until that capability is on the signed build, `containerURL` is nil and the widget shows Empty.
 
 ## Don’t add

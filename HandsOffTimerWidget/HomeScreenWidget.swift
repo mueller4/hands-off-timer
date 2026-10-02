@@ -69,7 +69,15 @@ struct HomeWidgetEntryView: View {
         .containerBackground(Color(.systemBackground), for: .widget)
         .widgetURL(HomeWidgetLink.url(for: entry.phase.destination))
         .accessibilityElement(children: .ignore)
-        .accessibilityLabel(entry.phase.accessibilityLabel)
+        .accessibilityLabel(spokenLabel)
+    }
+
+    /// Medium Idle names every visible chain. The app mark stays decorative.
+    private var spokenLabel: String {
+        if family == .systemMedium, case .idle = entry.phase {
+            return entry.phase.mediumIdleAccessibilityLabel
+        }
+        return entry.phase.accessibilityLabel
     }
 
     private var titleColor: Color { WidgetPalette.title(colorScheme) }
@@ -93,22 +101,21 @@ struct HomeWidgetEntryView: View {
                     .foregroundStyle(.secondary)
                     .lineLimit(1)
             }
-        case .idle(let chain):
-            VStack(alignment: .leading, spacing: 2) {
-                Text(chain.displayName)
-                    .font(.headline)
-                    .foregroundStyle(titleColor)
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.7)
-                Text(chain.stepCountText)
-                    .font(.footnote)
-                    .foregroundStyle(.secondary)
-                    .lineLimit(1)
-                Spacer(minLength: 8)
-                Text("Open to start")
-                    .font(.caption2)
-                    .foregroundStyle(.secondary)
-                    .lineLimit(1)
+        case .idle(let chains):
+            if let chain = chains.first {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(chain.displayName)
+                        .font(.headline)
+                        .foregroundStyle(titleColor)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.7)
+                    Text(chain.stepCountText)
+                        .font(.footnote)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(1)
+                    Spacer(minLength: 8)
+                    openToStartFooter
+                }
             }
         case .running(let run):
             VStack(alignment: .leading, spacing: 0) {
@@ -158,30 +165,24 @@ struct HomeWidgetEntryView: View {
                     .lineLimit(2)
                     .minimumScaleFactor(0.8)
             }
-        case .idle(let chain):
+        case .idle(let chains):
             VStack(alignment: .leading, spacing: 4) {
-                HStack(alignment: .firstTextBaseline, spacing: 8) {
-                    Text(chain.displayName)
-                        .font(.title3.weight(.semibold))
-                        .foregroundStyle(titleColor)
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.7)
-                    Spacer(minLength: 8)
-                    Text(chain.stepCountText)
-                        .font(.footnote)
-                        .foregroundStyle(.secondary)
-                        .lineLimit(1)
+                ForEach(Array(chains.prefix(3).enumerated()), id: \.element.id) { index, chain in
+                    HStack(alignment: .firstTextBaseline, spacing: 8) {
+                        Text(chain.displayName)
+                            .font(index == 0 ? .subheadline.weight(.semibold) : .subheadline)
+                            .foregroundStyle(index == 0 ? titleColor : titleColor.opacity(0.82))
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.7)
+                        Spacer(minLength: 8)
+                        Text(chain.stepCountText)
+                            .font(.footnote)
+                            .foregroundStyle(WidgetPalette.accent)
+                            .lineLimit(1)
+                    }
                 }
-                Text(chain.mediumSummary)
-                    .font(.footnote)
-                    .foregroundStyle(.secondary)
-                    .lineLimit(1)
-                    .truncationMode(.tail)
-                Spacer(minLength: 8)
-                Text("Open to start")
-                    .font(.caption2)
-                    .foregroundStyle(.secondary)
-                    .lineLimit(1)
+                Spacer(minLength: 6)
+                openToStartFooter
             }
         case .running(let run):
             VStack(alignment: .leading, spacing: 2) {
@@ -215,6 +216,23 @@ struct HomeWidgetEntryView: View {
                     .lineLimit(1)
                     .minimumScaleFactor(0.7)
             }
+        }
+    }
+
+    /// ~16 pt app icon, immediately left of “Open to start”. Decorative. Idle only.
+    private var openToStartFooter: some View {
+        HStack(spacing: 6) {
+            Image("AppMark")
+                .resizable()
+                .scaledToFill()
+                .frame(width: 16, height: 16)
+                .clipShape(RoundedRectangle(cornerRadius: 3.6, style: .continuous))
+                .accessibilityHidden(true)
+            Text("Open to start")
+                .font(.caption2)
+                .foregroundStyle(.secondary)
+                .lineLimit(1)
+                .minimumScaleFactor(0.8)
         }
     }
 

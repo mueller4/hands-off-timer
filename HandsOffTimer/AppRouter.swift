@@ -10,8 +10,6 @@ final class AppRouter {
     var showPermissionExplainer = false
     var pendingStart: TimerChain?
     var didPromptAlarms = false
-    /// Set by an Idle widget tap so Home can scroll to that chain.
-    var focusChainID: UUID?
 
     func openNew() {
         editing = TimerChain()

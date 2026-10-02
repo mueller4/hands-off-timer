@@ -11,7 +11,8 @@ enum HomeWidgetKind {
 }
 
 enum HomeWidgetDestination: Equatable {
-    /// Empty (no chain) or Idle (that chain). Opens Home. Never starts a chain.
+    /// Empty opens Home (New Chain when there are no chains). Idle opens the Home list.
+    /// No per-chain highlight. Never starts a chain.
     case home(chainID: UUID?)
     /// Running. Same navigation as an Island tap. Does not pause, skip, or dismiss alarms.
     case run
@@ -56,14 +57,6 @@ struct HomeWidgetStep: Codable, Equatable, Hashable, Sendable {
     var label: String
     var durationSeconds: Int
 
-    var hasCustomLabel: Bool {
-        !label.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-    }
-
-    func displayLabel(index: Int) -> String {
-        let trimmed = label.trimmingCharacters(in: .whitespacesAndNewlines)
-        return trimmed.isEmpty ? "Step \(index + 1)" : trimmed
-    }
 }
 
 struct HomeWidgetChain: Codable, Equatable, Hashable, Sendable, Identifiable {
@@ -84,27 +77,6 @@ struct HomeWidgetChain: Codable, Equatable, Hashable, Sendable, Identifiable {
             return Formatters.duration(0)
         }
         return steps.count == 1 ? "1 step" : "\(steps.count) steps"
-    }
-
-    /// First 2–3 labels when set, otherwise durations. One custom label is shown with its duration.
-    var mediumSummary: String {
-        let shown = Array(steps.prefix(3))
-        guard !shown.isEmpty else { return "" }
-        let customCount = shown.filter(\.hasCustomLabel).count
-        if customCount == 0 {
-            return shown.map { Formatters.duration($0.durationSeconds) }.joined(separator: " · ")
-        }
-        if customCount == 1 {
-            return shown.map { step in
-                let duration = Formatters.duration(step.durationSeconds)
-                guard step.hasCustomLabel else { return duration }
-                let name = step.label.trimmingCharacters(in: .whitespacesAndNewlines)
-                return "\(name) \(duration)"
-            }.joined(separator: " · ")
-        }
-        return shown.enumerated().map { index, step in
-            step.displayLabel(index: index)
-        }.joined(separator: " · ")
     }
 }
 
@@ -188,30 +160,38 @@ struct HomeWidgetRun: Codable, Equatable, Hashable, Sendable {
 
 enum HomeWidgetPhase: Equatable, Hashable, Sendable {
     case empty
-    case idle(HomeWidgetChain)
+    /// Last-started first, then most recently edited. At most three. Unique. No demo chains.
+    case idle([HomeWidgetChain])
     case running(HomeWidgetRunDisplay)
 
     var destination: HomeWidgetDestination {
         switch self {
-        case .empty:
+        case .empty, .idle:
+            // Idle opens the Home list. It does not deep-link or highlight one chain.
             return .home(chainID: nil)
-        case .idle(let chain):
-            return .home(chainID: chain.id)
         case .running:
             return .run
         }
     }
 
+    /// Small Idle speaks the first chain. Medium overrides this with every visible row.
     var accessibilityLabel: String {
         switch self {
         case .empty:
             return "No chains yet. Double-tap to open Hands-Off Timer."
-        case .idle(let chain):
+        case .idle(let chains):
+            guard let chain = chains.first else { return "Open to start." }
             return "\(chain.displayName), \(chain.stepCountText). Open to start."
         case .running(let run):
             let remaining = run.remainingText.isEmpty ? "time" : run.remainingText
             return "\(run.label), \(remaining) remaining. Opens run screen."
         }
+    }
+
+    var mediumIdleAccessibilityLabel: String {
+        guard case .idle(let chains) = self, !chains.isEmpty else { return accessibilityLabel }
+        let rows = chains.prefix(3).map { "\($0.displayName), \($0.stepCountText)" }.joined(separator: ". ")
+        return "\(rows). Open to start."
     }
 }
 
@@ -237,15 +217,32 @@ struct HomeWidgetDisk: Codable, Equatable, Sendable {
         if let id = lastStartedChainID, let match = chains.first(where: { $0.id == id }) {
             return match
         }
-        return chains.sorted { lhs, rhs in
-            if lhs.updatedAt != rhs.updatedAt { return lhs.updatedAt > rhs.updatedAt }
-            return lhs.id.uuidString > rhs.id.uuidString
-        }.first
+        return chains.sorted(by: Self.newerEdited).first
+    }
+
+    /// Last-started first, then the most recently edited others. Unique. Never pads with fake chains.
+    func recentChains(limit: Int = 3) -> [HomeWidgetChain] {
+        guard limit > 0 else { return [] }
+        var ranked: [HomeWidgetChain] = []
+        if let selected = selectedChain() {
+            ranked.append(selected)
+        }
+        let rest = chains
+            .filter { chain in !ranked.contains(where: { $0.id == chain.id }) }
+            .sorted(by: Self.newerEdited)
+        ranked.append(contentsOf: rest)
+        return Array(ranked.prefix(limit))
     }
 
     func idlePhase() -> HomeWidgetPhase {
-        if let chain = selectedChain() { return .idle(chain) }
-        return .empty
+        let recent = recentChains(limit: 3)
+        if recent.isEmpty { return .empty }
+        return .idle(recent)
+    }
+
+    private static func newerEdited(_ lhs: HomeWidgetChain, _ rhs: HomeWidgetChain) -> Bool {
+        if lhs.updatedAt != rhs.updatedAt { return lhs.updatedAt > rhs.updatedAt }
+        return lhs.id.uuidString > rhs.id.uuidString
     }
 
     func signature() -> String {

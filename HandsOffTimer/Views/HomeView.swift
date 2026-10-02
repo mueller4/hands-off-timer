@@ -56,28 +56,14 @@ struct HomeView: View {
     }
 
     private var list: some View {
-        ScrollViewReader { proxy in
-            List {
-                ForEach(store.chains) { chain in
-                    ChainRowView(
-                        chain: chain,
-                        onEdit: { router.openEdit(chain) },
-                        onStart: { start(chain) },
-                        onRequestDelete: { pendingDelete = $0 }
-                    )
-                    .id(chain.id)
-                    .modifier(FocusRowBackground(focused: router.focusChainID == chain.id))
-                }
-            }
-            .onChange(of: router.focusChainID) { _, id in
-                guard let id else { return }
-                withAnimation {
-                    proxy.scrollTo(id, anchor: .center)
-                }
-            }
-            .onAppear {
-                guard let id = router.focusChainID else { return }
-                proxy.scrollTo(id, anchor: .center)
+        List {
+            ForEach(store.chains) { chain in
+                ChainRowView(
+                    chain: chain,
+                    onEdit: { router.openEdit(chain) },
+                    onStart: { start(chain) },
+                    onRequestDelete: { pendingDelete = $0 }
+                )
             }
         }
     }
@@ -174,20 +160,6 @@ private struct ChainRowView: View {
             } label: {
                 Label("Delete", systemImage: "trash")
             }
-        }
-    }
-}
-
-/// Idle widget tap highlights that chain. Unfocused rows keep the system list background.
-private struct FocusRowBackground: ViewModifier {
-    var focused: Bool
-
-    @ViewBuilder
-    func body(content: Content) -> some View {
-        if focused {
-            content.listRowBackground(WidgetPalette.accent.opacity(0.12))
-        } else {
-            content
         }
     }
 }

@@ -42,9 +42,9 @@ struct HandsOffTimerApp: App {
         }
     }
 
-    /// Widget taps. Empty/Idle open Home. Running matches an Island tap:
-    /// post `.handsOffOpenRun` and present Run. Does not pause, skip, stop,
-    /// or dismiss AlarmKit. AlarmKit OK never uses this URL.
+    /// Widget taps. Empty opens Home (New Chain when the list is empty).
+    /// Idle opens the Home chain list — no per-chain scroll or highlight.
+    /// Running matches an Island tap. Does not pause, skip, stop, or dismiss AlarmKit.
     private func openWidgetLink(_ url: URL) {
         guard let destination = HomeWidgetLink.destination(from: url) else { return }
         switch destination {
@@ -53,13 +53,12 @@ struct HandsOffTimerApp: App {
             if engine.snapshot.status == .running || engine.snapshot.status == .paused {
                 router.showRun = true
             }
-        case .home(let chainID):
+        case .home:
             router.closeEditor()
             if engine.snapshot.status != .running && engine.snapshot.status != .paused {
                 router.showRun = false
             }
-            router.focusChainID = chainID
-            if chainID == nil, store.chains.isEmpty {
+            if store.chains.isEmpty {
                 router.openNew()
             }
         }
