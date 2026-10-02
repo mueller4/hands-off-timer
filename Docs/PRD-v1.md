@@ -49,7 +49,7 @@ These two systems are independent. Alarms **never gate** progression.
 - Attributes / content: `stepIndex`, `stepCount`, `label`, `endDate`, `nextLabel`.
 - Starts with the run, updates on step/pause/resume, ends on stop/complete.
 - Best-effort if force-quit. **Not** reboot survival.
-- No widgets beyond Live Activity + the AlarmKit alert presentation.
+- v1 shipped no Home Screen widget. v1.1 adds systemSmall and systemMedium only (glance + open; Live Activity is unchanged).
 
 ## Persistence
 
@@ -58,7 +58,7 @@ These two systems are independent. Alarms **never gate** progression.
 
 ## Out of scope (v1)
 
-Accounts, cloud sync, widgets beyond Live Activity / AlarmKit presentation, templates marketplace, settings beyond AlarmKit permission, watchOS app, Critical Alerts, custom brand theme (use semantic system colors, light + dark).
+Accounts, cloud sync, Home Screen widgets larger than medium, Lock Screen / StandBy / Control Center widgets, widget controls, templates marketplace, settings beyond AlarmKit permission, watchOS app, Critical Alerts, custom brand theme (use semantic system colors, light + dark).
 
 ## Screens
 

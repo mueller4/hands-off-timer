@@ -42,6 +42,18 @@
 		A11A01010000000000000008 /* AlarmKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A11A0101000000000000F007 /* AlarmKit.framework */; };
 		A11A0101000000000000000A /* AppIntents.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A11A0101000000000000F008 /* AppIntents.framework */; };
 		A11A0101000000000000000B /* AppIntents.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A11A0101000000000000F008 /* AppIntents.framework */; };
+		A20000000000000000000013 /* HandsOffTimerWidget.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = A20000000000000000000010 /* HandsOffTimerWidget.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		A20000000000000000000051 /* HomeWidgetModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000041 /* HomeWidgetModels.swift */; };
+		A20000000000000000000052 /* HomeWidgetModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000041 /* HomeWidgetModels.swift */; };
+		A20000000000000000000053 /* HomeWidgetPublisher.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000043 /* HomeWidgetPublisher.swift */; };
+		A20000000000000000000054 /* Formatters.swift in Sources */ = {isa = PBXBuildFile; fileRef = 033C2AAB8205777E3072DF72 /* Formatters.swift */; };
+		A20000000000000000000055 /* WidgetPalette.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000048 /* WidgetPalette.swift */; };
+		A20000000000000000000056 /* WidgetPalette.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000048 /* WidgetPalette.swift */; };
+		A20000000000000000000057 /* HomeScreenWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000044 /* HomeScreenWidget.swift */; };
+		A20000000000000000000058 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000047 /* Assets.xcassets */; };
+		A20000000000000000000059 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5252A49CB41A8E76CF422EEB /* WidgetKit.framework */; };
+		A2000000000000000000005A /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0E2AE80C122615E76B57CAE6 /* SwiftUI.framework */; };
+		A2000000000000000000005B /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5252A49CB41A8E76CF422EEB /* WidgetKit.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -51,6 +63,13 @@
 			proxyType = 1;
 			remoteGlobalIDString = A10000000000000000000002;
 			remoteInfo = ChainActivityWidget;
+		};
+		A20000000000000000000011 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = A10000000000000000000003 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = A20000000000000000000002;
+			remoteInfo = HandsOffTimerWidget;
 		};
 /* End PBXContainerItemProxy section */
 
@@ -62,6 +81,7 @@
 			dstSubfolderSpec = 13;
 			files = (
 				E6F1ACD21C913B732DC0936F /* ChainActivityWidget.appex in Embed Foundation Extensions */,
+				A20000000000000000000013 /* HandsOffTimerWidget.appex in Embed Foundation Extensions */,
 			);
 			name = "Embed Foundation Extensions";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -102,6 +122,14 @@
 		A11A0101000000000000F006 /* HandsOffTimerWidgets.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HandsOffTimerWidgets.swift; sourceTree = "<group>"; };
 		A11A0101000000000000F007 /* AlarmKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AlarmKit.framework; path = System/Library/Frameworks/AlarmKit.framework; sourceTree = SDKROOT; };
 		A11A0101000000000000F008 /* AppIntents.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppIntents.framework; path = System/Library/Frameworks/AppIntents.framework; sourceTree = SDKROOT; };
+		A20000000000000000000010 /* HandsOffTimerWidget.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = HandsOffTimerWidget.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		A20000000000000000000041 /* HomeWidgetModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeWidgetModels.swift; sourceTree = "<group>"; };
+		A20000000000000000000043 /* HomeWidgetPublisher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeWidgetPublisher.swift; sourceTree = "<group>"; };
+		A20000000000000000000044 /* HomeScreenWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeScreenWidget.swift; sourceTree = "<group>"; };
+		A20000000000000000000045 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		A20000000000000000000046 /* HandsOffTimerWidget.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = HandsOffTimerWidget.entitlements; sourceTree = "<group>"; };
+		A20000000000000000000047 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		A20000000000000000000048 /* WidgetPalette.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetPalette.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -113,6 +141,7 @@
 				7D9281B2E168BD0DE03241FC /* ActivityKit.framework in Frameworks */,
 				A11A01010000000000000007 /* AlarmKit.framework in Frameworks */,
 				A11A0101000000000000000A /* AppIntents.framework in Frameworks */,
+				A2000000000000000000005B /* WidgetKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -128,6 +157,15 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		A20000000000000000000021 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A2000000000000000000005A /* SwiftUI.framework in Frameworks */,
+				A20000000000000000000059 /* WidgetKit.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -136,6 +174,7 @@
 			children = (
 				B21DFB28D5DA6CAEC485A089 /* HandsOffTimer */,
 				5D0203735B699D07AA037A27 /* ChainActivityWidget */,
+				A20000000000000000000040 /* HandsOffTimerWidget */,
 				A855A75AEF5D48116D5A2885 /* Docs */,
 				B732E633BAD25804C0ADF611 /* Frameworks */,
 				41B102442FE27A25848E0FD8 /* Products */,
@@ -147,6 +186,7 @@
 			children = (
 				2C427BC9A1E4E03F84ED0387 /* HandsOffTimer.app */,
 				EADE3016B4A2A9BB3D88E396 /* ChainActivityWidget.appex */,
+				A20000000000000000000010 /* HandsOffTimerWidget.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -182,6 +222,7 @@
 				CF0EF8356D72D7E72AA7B8A7 /* Notifications */,
 				A11A0101000000000000A000 /* Alarms */,
 				A3E5D2093AA53915465555C3 /* LiveActivity */,
+				A20000000000000000000049 /* Widget */,
 				E686F9E3237B883BADAEA5B2 /* Views */,
 				42ACFDF30CD7860662A5E7F8 /* Support */,
 				AC9E1AB146F6A81D005752C2 /* Assets.xcassets */,
@@ -274,6 +315,27 @@
 			path = ChainActivityWidget;
 			sourceTree = "<group>";
 		};
+		A20000000000000000000049 /* Widget */ = {
+			isa = PBXGroup;
+			children = (
+				A20000000000000000000041 /* HomeWidgetModels.swift */,
+				A20000000000000000000043 /* HomeWidgetPublisher.swift */,
+				A20000000000000000000048 /* WidgetPalette.swift */,
+			);
+			path = Widget;
+			sourceTree = "<group>";
+		};
+		A20000000000000000000040 /* HandsOffTimerWidget */ = {
+			isa = PBXGroup;
+			children = (
+				A20000000000000000000044 /* HomeScreenWidget.swift */,
+				A20000000000000000000047 /* Assets.xcassets */,
+				A20000000000000000000045 /* Info.plist */,
+				A20000000000000000000046 /* HandsOffTimerWidget.entitlements */,
+			);
+			path = HandsOffTimerWidget;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -290,6 +352,7 @@
 			);
 			dependencies = (
 				6EA506F5A54EF90AB282B4EC /* PBXTargetDependency */,
+				A20000000000000000000012 /* PBXTargetDependency */,
 			);
 			name = HandsOffTimer;
 			productName = HandsOffTimer;
@@ -313,6 +376,23 @@
 			productReference = EADE3016B4A2A9BB3D88E396 /* ChainActivityWidget.appex */;
 			productType = "com.apple.product-type.app-extension";
 		};
+		A20000000000000000000002 /* HandsOffTimerWidget */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A20000000000000000000030 /* Build configuration list for PBXNativeTarget "HandsOffTimerWidget" */;
+			buildPhases = (
+				A20000000000000000000020 /* Sources */,
+				A20000000000000000000021 /* Frameworks */,
+				A20000000000000000000022 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = HandsOffTimerWidget;
+			productName = HandsOffTimerWidget;
+			productReference = A20000000000000000000010 /* HandsOffTimerWidget.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -327,6 +407,9 @@
 						CreatedOnToolsVersion = 15.4;
 					};
 					A10000000000000000000002 = {
+						CreatedOnToolsVersion = 15.4;
+					};
+					A20000000000000000000002 = {
 						CreatedOnToolsVersion = 15.4;
 					};
 				};
@@ -346,6 +429,7 @@
 			targets = (
 				A10000000000000000000001 /* HandsOffTimer */,
 				A10000000000000000000002 /* ChainActivityWidget */,
+				A20000000000000000000002 /* HandsOffTimerWidget */,
 			);
 		};
 /* End PBXProject section */
@@ -364,6 +448,14 @@
 			buildActionMask = 2147483647;
 			files = (
 				44F5549DBE936ABC68C464B8 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A20000000000000000000022 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A20000000000000000000058 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -392,6 +484,9 @@
 				A11A01010000000000000001 /* AlarmKitGateway.swift in Sources */,
 				A11A01010000000000000002 /* AcknowledgeStepIntent.swift in Sources */,
 				A11A01010000000000000003 /* StepEndMetadata.swift in Sources */,
+				A20000000000000000000051 /* HomeWidgetModels.swift in Sources */,
+				A20000000000000000000053 /* HomeWidgetPublisher.swift in Sources */,
+				A20000000000000000000055 /* WidgetPalette.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -407,6 +502,17 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		A20000000000000000000020 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A20000000000000000000057 /* HomeScreenWidget.swift in Sources */,
+				A20000000000000000000052 /* HomeWidgetModels.swift in Sources */,
+				A20000000000000000000054 /* Formatters.swift in Sources */,
+				A20000000000000000000056 /* WidgetPalette.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -414,6 +520,11 @@
 			isa = PBXTargetDependency;
 			target = A10000000000000000000002 /* ChainActivityWidget */;
 			targetProxy = AC668E6540A80E73318E8FF3 /* PBXContainerItemProxy */;
+		};
+		A20000000000000000000012 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = A20000000000000000000002 /* HandsOffTimerWidget */;
+			targetProxy = A20000000000000000000011 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -493,8 +604,8 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = HandsOffTimer/HandsOffTimer.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = "";
+				CURRENT_PROJECT_VERSION = 2;
+				DEVELOPMENT_TEAM = 3LW54H3BCH;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = HandsOffTimer/Info.plist;
@@ -508,8 +619,8 @@
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
 				LD_RUNPATH_SEARCH_PATHS = ("$(inherited)", "@executable_path/Frameworks", );
-				MARKETING_VERSION = 1.0;
-				OTHER_LDFLAGS = ("$(inherited)", "-framework", "AlarmKit", "-framework", "AppIntents", "-framework", "ActivityKit");
+				MARKETING_VERSION = 1.1;
+				OTHER_LDFLAGS = ("$(inherited)", "-framework", "AlarmKit", "-framework", "AppIntents", "-framework", "ActivityKit", "-framework", "WidgetKit");
 				PRODUCT_BUNDLE_IDENTIFIER = com.mueller4.HandsOffTimer;
 				PRODUCT_NAME = "HandsOffTimer";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
@@ -530,8 +641,8 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = HandsOffTimer/HandsOffTimer.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = "";
+				CURRENT_PROJECT_VERSION = 2;
+				DEVELOPMENT_TEAM = 3LW54H3BCH;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = HandsOffTimer/Info.plist;
@@ -545,8 +656,8 @@
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
 				LD_RUNPATH_SEARCH_PATHS = ("$(inherited)", "@executable_path/Frameworks", );
-				MARKETING_VERSION = 1.0;
-				OTHER_LDFLAGS = ("$(inherited)", "-framework", "AlarmKit", "-framework", "AppIntents", "-framework", "ActivityKit");
+				MARKETING_VERSION = 1.1;
+				OTHER_LDFLAGS = ("$(inherited)", "-framework", "AlarmKit", "-framework", "AppIntents", "-framework", "ActivityKit", "-framework", "WidgetKit");
 				PRODUCT_BUNDLE_IDENTIFIER = com.mueller4.HandsOffTimer;
 				PRODUCT_NAME = "HandsOffTimer";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
@@ -564,8 +675,8 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = "";
+				CURRENT_PROJECT_VERSION = 2;
+				DEVELOPMENT_TEAM = 3LW54H3BCH;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = ChainActivityWidget/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "Hands-Off Timer";
@@ -573,7 +684,7 @@
 				INFOPLIST_KEY_NSSupportsLiveActivities = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
 				LD_RUNPATH_SEARCH_PATHS = ("$(inherited)", "@executable_path/Frameworks", "@executable_path/../../Frameworks", );
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.1;
 				OTHER_LDFLAGS = ("$(inherited)", "-framework", "AlarmKit", "-framework", "AppIntents", "-framework", "WidgetKit", "-framework", "ActivityKit");
 				PRODUCT_BUNDLE_IDENTIFIER = com.mueller4.HandsOffTimer.ChainActivity;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -594,8 +705,8 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = "";
+				CURRENT_PROJECT_VERSION = 2;
+				DEVELOPMENT_TEAM = 3LW54H3BCH;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = ChainActivityWidget/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "Hands-Off Timer";
@@ -603,7 +714,7 @@
 				INFOPLIST_KEY_NSSupportsLiveActivities = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
 				LD_RUNPATH_SEARCH_PATHS = ("$(inherited)", "@executable_path/Frameworks", "@executable_path/../../Frameworks", );
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.1;
 				OTHER_LDFLAGS = ("$(inherited)", "-framework", "AlarmKit", "-framework", "AppIntents", "-framework", "WidgetKit", "-framework", "ActivityKit");
 				PRODUCT_BUNDLE_IDENTIFIER = com.mueller4.HandsOffTimer.ChainActivity;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -617,6 +728,66 @@
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1";
+			};
+			name = Release;
+		};
+		A20000000000000000000031 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				CODE_SIGN_ENTITLEMENTS = HandsOffTimerWidget/HandsOffTimerWidget.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 2;
+				DEVELOPMENT_TEAM = 3LW54H3BCH;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = HandsOffTimerWidget/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "Hands-Off Timer";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				LD_RUNPATH_SEARCH_PATHS = ("$(inherited)", "@executable_path/Frameworks", "@executable_path/../../Frameworks", );
+				MARKETING_VERSION = 1.1;
+				OTHER_LDFLAGS = ("$(inherited)", "-framework", "WidgetKit", "-framework", "SwiftUI");
+				PRODUCT_BUNDLE_IDENTIFIER = com.mueller4.HandsOffTimer.HomeWidget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1";
+				WRAPPER_EXTENSION = appex;
+			};
+			name = Debug;
+		};
+		A20000000000000000000032 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				CODE_SIGN_ENTITLEMENTS = HandsOffTimerWidget/HandsOffTimerWidget.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 2;
+				DEVELOPMENT_TEAM = 3LW54H3BCH;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = HandsOffTimerWidget/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "Hands-Off Timer";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				LD_RUNPATH_SEARCH_PATHS = ("$(inherited)", "@executable_path/Frameworks", "@executable_path/../../Frameworks", );
+				MARKETING_VERSION = 1.1;
+				OTHER_LDFLAGS = ("$(inherited)", "-framework", "WidgetKit", "-framework", "SwiftUI");
+				PRODUCT_BUNDLE_IDENTIFIER = com.mueller4.HandsOffTimer.HomeWidget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1";
+				WRAPPER_EXTENSION = appex;
 			};
 			name = Release;
 		};
@@ -646,6 +817,15 @@
 			buildConfigurations = (
 				8C9ADC2025940101FF4AD086 /* Debug */,
 				6EC277081D4390B2AD43B813 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		A20000000000000000000030 /* Build configuration list for PBXNativeTarget "HandsOffTimerWidget" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A20000000000000000000031 /* Debug */,
+				A20000000000000000000032 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

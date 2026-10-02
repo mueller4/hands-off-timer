@@ -6,6 +6,17 @@
 	<string>Hands-Off Timer</string>
 	<key>NSAlarmKitUsageDescription</key>
 	<string>Hands-Off Timer uses alarms so each step can break through Silent and Focus when it ends. The next timer is already running — acknowledge when you’re ready.</string>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleURLName</key>
+			<string>com.mueller4.HandsOffTimer</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>handsofftimer</string>
+			</array>
+		</dict>
+	</array>
 	<key>NSSupportsLiveActivities</key>
 	<true/>
 	<key>NSSupportsLiveActivitiesFrequentUpdates</key>
