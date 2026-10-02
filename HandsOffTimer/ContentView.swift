@@ -29,6 +29,9 @@ struct ContentView: View {
                     router.showRun = true
                 }
             }
+            .onChange(of: store.chains) { _, chains in
+                HomeWidgetPublisher.publish(chains: chains, snapshot: engine.snapshot)
+            }
     }
 
     private var editorBinding: Binding<Bool> {

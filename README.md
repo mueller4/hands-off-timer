@@ -30,7 +30,9 @@ See [Docs/PRD-v1.md](Docs/PRD-v1.md) and [Docs/DESIGN-v1.md](Docs/DESIGN-v1.md).
 
 3. **Simulator first.** Pick any iPhone simulator running **iOS 26** or later, then Run (⌘R). You do not need a paid Apple Developer Program membership to run in Simulator.
 
-4. **Signing:** set the Hands-Off Timer target (and the Chain Activity widget target) to **Automatically manage signing**. Choose your **Personal Team**. This is OK before Apple Developer enrollment is Active.
+4. **Signing:** set the Hands-Off Timer target, the Chain Activity widget target, and the **HandsOffTimerWidget** target to **Automatically manage signing**. Choose your **Personal Team**. This is OK before Apple Developer enrollment is Active.
+
+   **App Group (required for the Home Screen widget):** register `group.com.mueller4.HandsOffTimer` and add the App Groups capability to the app and the Home widget extension. Entitlements are already in the project. Until that group exists, the widget stays on the empty state because it cannot read the shared snapshot.
 
 5. Capabilities / Info notes:
 
@@ -53,9 +55,11 @@ See [Docs/PRD-v1.md](Docs/PRD-v1.md) and [Docs/DESIGN-v1.md](Docs/DESIGN-v1.md).
 - `AlarmKitGateway` schedules a one-shot AlarmKit alarm for the current step’s end from `snapshot.upcomingEnds`. Natural end promotes that alarm so it keeps ringing until the user acknowledges; Skip cancels it (never fired); Stop cancels outstanding alarms for the run.
 - AlarmKit OK (`AcknowledgeStepIntent`) stops that alarm only — it does **not** open the app. Island / leftover notification taps still post `Notification.Name.handsOffOpenRun` to open Run. Callbacks never call pause/stop/skip on the engine.
 - `LiveActivityController` is best-effort ActivityKit, driven by the same snapshot. Compact Island by default; no `alertConfiguration` (that would expand the Island or show a full-width unlocked banner).
+- Home Screen widget (v1.1, `systemSmall` + `systemMedium` only) reads an App Group mirror of that snapshot plus the saved chains. Tap opens Home (empty/idle) or Run (running). It does not start, pause, skip, stop, or dismiss AlarmKit. AlarmKit OK is unchanged (`openAppWhenRun` false).
 
 ## Deferred
 
 - Icon Composer `.icon` Liquid Glass asset (flat 1024 is wired)
-- Cloud sync, accounts, Watch app, Home Screen widgets, templates, extra settings
+- Cloud sync, accounts, Watch app, templates, extra settings
+- Home Screen widget sizes beyond small/medium, Lock Screen / StandBy / Control Center widgets, and any widget controls
 - ActivityKit push-to-update after force-quit

@@ -6,7 +6,7 @@ Open `HandsOffTimer.xcodeproj` on a Mac. Scheme **HandsOffTimer**. iPhone simula
 
 ## Platform lock
 
-- **Minimum deployment: iOS 26.0** (project + both targets).
+- **Minimum deployment: iOS 26.0** (app, Live Activity extension, and Home Screen widget extension).
 - Step-end breakthrough uses **AlarmKit**, not Critical Alerts.
 - Do **not** add `com.apple.developer.usernotifications.critical-alerts` or request `.criticalAlert`.
 - `NSAlarmKitUsageDescription` is required. If missing or empty, AlarmKit will not schedule.
@@ -28,7 +28,8 @@ Open `HandsOffTimer.xcodeproj` on a Mac. Scheme **HandsOffTimer**. iPhone simula
 - Countdown uses `Text(endDate, style: .timer)` (not `Date.now...endDate` — a zero-length range renders **blank**). Paused shows frozen `remainingText`. Controller signature rounds the deadline to whole seconds so the 20 Hz engine tick does not spam `Activity.update` (that throttles presentation and hides the timer). `staleDate` is `endDate + 60s`, not `endDate`.
 - Lock / Home / StandBy is one compact row: **leading** glyph + **chain name** (`attributes.chainName`, optional ` · {step label}`), `Spacer` gutter, **trailing** mm:ss. Name has `layoutPriority(1)` so the countdown cannot compress it to zero width; countdown is capped (`maxWidth: 72`) so it cannot steal the row. ~16pt horizontal inset. Compact Island trailing is `caption2` + `frame(minWidth: 0, maxWidth: 44)` — **never** `.fixedSize()` (that forces expanded / full-top Island). A small system inset on the Island capsule remains and cannot be zeroed out. Expanded Island leading (name + step label) insets from the leading-ear curve (`padding` leading 10 / top 4) so the first glyph is not sheared by the mask, then uses `minWidth: 0`, a camera-safe `maxWidth` (104pt), and tail ellipsis if the name is still too long; trailing countdown has region `priority: 1` and stays fully visible.
 - Active-run session is snapshotted to disk so a force-quit can restore the already-advanced step (best-effort; not reboot survival).
-- The widget extension (`HandsOffTimerWidgets`) hosts both the chain Live Activity and the AlarmKit alert Live Activity (`StepEndAlarmActivity`) so the system has a presentation and does not dismiss the alerting alarm unexpectedly.
+- The Live Activity extension (`HandsOffTimerWidgets`) hosts both the chain Live Activity and the AlarmKit alert Live Activity (`StepEndAlarmActivity`) so the system has a presentation and does not dismiss the alerting alarm unexpectedly.
+- The Home Screen widget is a **separate** extension (`HandsOffTimerWidget`, bundle `com.mueller4.HandsOffTimer.HomeWidget`). `systemSmall` and `systemMedium` only. It does not link AlarmKit. `AcknowledgeStepIntent` stays app-only with `openAppWhenRun` false.
 - Natural-end **haptic** (`Haptics.light`) runs only when `UIApplication.shared.applicationState == .active` (BUG-2). Not Silent-gated. AlarmKit sound is independent and stays `.default`. Skip does not fire `onNaturalEnd`, so Skip stays silent and haptic-free.
 - `NotificationGateway` is a **dead stub**. Do not schedule from it. Leftover `UNUserNotificationCenter` taps in `AppDelegate` only post `handsOffOpenRun` (navigation).
 
@@ -136,6 +137,16 @@ On a physical iPhone running iOS 26:
 - Reboot (not force-quit) is not a survival target for the in-app run UI. AlarmKit schedules that the system still holds may still alert.
 - **Watch dual-ring** is a system AlarmKit limitation (no public Watch-only API). See “Apple Watch” above.
 
+## Home Screen widget (v1.1)
+
+Glance + open only. No Start / Pause / Skip / Stop on the widget.
+
+- Shared file: App Group `group.com.mueller4.HandsOffTimer`, `home-widget.json`. The app writes it from `ChainStore` + `EngineSnapshot` (`HomeWidgetPublisher`). The widget reads it. ChainEngine does not import WidgetKit.
+- Idle chain: most recently started session, else most recently edited, else empty. No demo data.
+- Running countdown uses the snapshot `endDate` / `upcomingEnds` (same wall clock as Run and Live Activity). Stop or complete clears the run and reloads timelines so the widget leaves Running on the next refresh. A precomputed timeline also switches to Idle at the final `endDate` if the app is suspended.
+- Deep links: `handsofftimer://home` (empty → New Chain), `handsofftimer://home?chain=<uuid>` (scroll to that chain), `handsofftimer://run` (posts `.handsOffOpenRun`, same as Island tap).
+- **Blocker:** Jacob must create the App Group and enable it on both the app App ID and `com.mueller4.HandsOffTimer.HomeWidget`. `DEVELOPMENT_TEAM` is still empty. Until the group is provisioned, `containerURL` is nil and the widget shows Empty.
+
 ## Don’t add
 
-Watch target, Critical Alerts, cloud sync, extra settings, templates marketplace, widgets beyond Live Activity / AlarmKit presentation.
+Watch target, Critical Alerts, cloud sync, extra settings, templates marketplace, systemLarge / Lock Screen / StandBy / Control Center widgets, widget controls, Start-from-widget.
