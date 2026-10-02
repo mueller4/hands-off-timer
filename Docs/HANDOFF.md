@@ -145,7 +145,7 @@ Glance + open only. No Start / Pause / Skip / Stop on the widget.
 - Idle chain: most recently started session, else most recently edited, else empty. No demo data.
 - Running countdown uses the snapshot `endDate` / `upcomingEnds` (same wall clock as Run and Live Activity). Stop or complete clears the run and reloads timelines so the widget leaves Running on the next refresh. A precomputed timeline also switches to Idle at the final `endDate` if the app is suspended.
 - Deep links: `handsofftimer://home` (empty → New Chain), `handsofftimer://home?chain=<uuid>` (scroll to that chain), `handsofftimer://run` (posts `.handsOffOpenRun`, same as Island tap).
-- **Blocker:** Jacob must create the App Group and enable it on both the app App ID and `com.mueller4.HandsOffTimer.HomeWidget`. `DEVELOPMENT_TEAM` is still empty. Until the group is provisioned, `containerURL` is nil and the widget shows Empty.
+- **Remaining:** Portal App Group `group.com.mueller4.HandsOffTimer` is already on App IDs `com.mueller4.HandsOffTimer` and `com.mueller4.HandsOffTimer.HomeWidget` (team `3LW54H3BCH`). Jacob still needs to enable App Groups in Xcode Signing & Capabilities for the app and HomeWidget targets, refresh profiles, and smoke-test on a device. Until that capability is on the signed build, `containerURL` is nil and the widget shows Empty.
 
 ## Don’t add
 

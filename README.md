@@ -30,9 +30,9 @@ See [Docs/PRD-v1.md](Docs/PRD-v1.md) and [Docs/DESIGN-v1.md](Docs/DESIGN-v1.md).
 
 3. **Simulator first.** Pick any iPhone simulator running **iOS 26** or later, then Run (⌘R). You do not need a paid Apple Developer Program membership to run in Simulator.
 
-4. **Signing:** set the Hands-Off Timer target, the Chain Activity widget target, and the **HandsOffTimerWidget** target to **Automatically manage signing**. Choose your **Personal Team**. This is OK before Apple Developer enrollment is Active.
+4. **Signing:** Hands-Off Timer, the Chain Activity widget, and **HandsOffTimerWidget** use **Automatically manage signing** with team **3LW54H3BCH**.
 
-   **App Group (required for the Home Screen widget):** register `group.com.mueller4.HandsOffTimer` and add the App Groups capability to the app and the Home widget extension. Entitlements are already in the project. Until that group exists, the widget stays on the empty state because it cannot read the shared snapshot.
+   **App Group:** `group.com.mueller4.HandsOffTimer` is already on App IDs `com.mueller4.HandsOffTimer` and `com.mueller4.HandsOffTimer.HomeWidget`. Entitlements already include it. In Xcode, enable **App Groups** under Signing & Capabilities for the app and the Home widget targets, then refresh profiles. Until that capability is on the signed build, the widget stays on the empty state.
 
 5. Capabilities / Info notes:
 
