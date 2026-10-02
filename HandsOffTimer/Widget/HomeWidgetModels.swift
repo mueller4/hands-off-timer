@@ -278,7 +278,7 @@ struct HomeWidgetDisk: Codable, Equatable, Sendable {
     }
 
     static func load() -> HomeWidgetDisk? {
-        guard let url = fileURL(), let data = try? Data(contentsOf: url) else { return nil }
+        guard let url = Self.fileURL(), let data = try? Data(contentsOf: url) else { return nil }
         let decoder = JSONDecoder()
         decoder.dateDecodingStrategy = .iso8601
         return try? decoder.decode(HomeWidgetDisk.self, from: data)
@@ -286,7 +286,7 @@ struct HomeWidgetDisk: Codable, Equatable, Sendable {
 
     @discardableResult
     func save() -> Bool {
-        guard let url = fileURL() else { return false }
+        guard let url = Self.fileURL() else { return false }
         let encoder = JSONEncoder()
         encoder.dateEncodingStrategy = .iso8601
         encoder.outputFormatting = [.sortedKeys]
