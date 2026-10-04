@@ -82,15 +82,16 @@ final class ChainEngine {
     }
 
     /// Silent advance. Does not fire `onNaturalEnd`.
+    /// While paused, leave `pausedAt` alone. Elapsed time is frozen at that
+    /// anchor, so `skipBonus` alone lands on the next boundary. Moving
+    /// `pausedAt` forward without adding the gap to `pauseAccum` counts the
+    /// time already paused as if the chain had kept running.
     @discardableResult
     func skip(at now: Date = .now) -> EngineSnapshot {
         guard session != nil, status == .running || status == .paused else { return snapshot }
         let progress = self.progress(at: now)
         if progress.complete { return complete(at: now) }
         session?.skipBonus += progress.remaining
-        if status == .paused {
-            session?.pausedAt = now
-        }
         let next = self.progress(at: now)
         if next.complete { return complete(at: now) }
         lastStepIndex = next.stepIndex
