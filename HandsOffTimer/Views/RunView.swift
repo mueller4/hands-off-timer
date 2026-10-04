@@ -65,12 +65,11 @@ struct RunView: View {
                 .font(.title2.weight(.semibold))
                 .padding(.top, 8)
             Spacer()
-            Text(Formatters.remaining(engine.snapshot.remaining))
-                .font(.system(size: 84, weight: .semibold, design: .monospaced))
-                .monospacedDigit()
-                .minimumScaleFactor(0.5)
-                .lineLimit(1)
-                .padding(.horizontal, 16)
+            CountdownReadout(
+                text: Formatters.remaining(engine.snapshot.remaining),
+                paused: engine.snapshot.status == .paused
+            )
+            .equatable()
             Text(engine.snapshot.nextLabel.map { "Next: \($0)" } ?? "Last step")
                 .font(.body)
                 .foregroundStyle(.secondary)
@@ -135,5 +134,22 @@ struct RunView: View {
             RoundedRectangle(cornerRadius: 20, style: .continuous)
                 .fill(role == .stop ? Color.red.opacity(0.12) : role == .primary ? Color.accentColor : Color(.tertiarySystemFill))
         )
+    }
+}
+
+/// Spoken once per displayed second. The engine ticks at 20 Hz; this view
+/// skips updates while the formatted remaining string and pause flag are unchanged.
+private struct CountdownReadout: View, Equatable {
+    var text: String
+    var paused: Bool
+
+    var body: some View {
+        Text(text)
+            .font(.system(size: 84, weight: .semibold, design: .monospaced))
+            .monospacedDigit()
+            .minimumScaleFactor(0.5)
+            .lineLimit(1)
+            .padding(.horizontal, 16)
+            .accessibilityLabel(paused ? "Paused, \(text) remaining" : "\(text) remaining")
     }
 }
