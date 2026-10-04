@@ -184,6 +184,9 @@ enum HomeWidgetPhase: Equatable, Hashable, Sendable {
             return "\(chain.displayName), \(chain.stepCountText). Open to start."
         case .running(let run):
             let remaining = run.remainingText.isEmpty ? "time" : run.remainingText
+            if run.isPaused {
+                return "Paused, \(run.label), \(remaining) remaining. Opens run screen."
+            }
             return "\(run.label), \(remaining) remaining. Opens run screen."
         }
     }

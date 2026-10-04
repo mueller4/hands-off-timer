@@ -25,12 +25,28 @@ struct HandsOffTimerHomeWidget: Widget {
 }
 
 struct HomeWidgetProvider: TimelineProvider {
+    /// Gallery skeleton only. Home Screen timelines never use this chain.
+    private static let galleryChain = HomeWidgetChain(
+        id: UUID(uuidString: "A1B2C3D4-E5F6-4789-A012-3456789ABCDE")!,
+        name: "Morning block",
+        steps: [
+            HomeWidgetStep(label: "Stretch", durationSeconds: 60),
+            HomeWidgetStep(label: "Shower", durationSeconds: 300),
+            HomeWidgetStep(label: "Coffee", durationSeconds: 180),
+        ],
+        updatedAt: Date(timeIntervalSince1970: 0)
+    )
+
     func placeholder(in context: Context) -> HomeWidgetEntry {
-        HomeWidgetEntry(date: .now, phase: .empty)
+        HomeWidgetEntry(date: .now, phase: .idle([Self.galleryChain]))
     }
 
     func getSnapshot(in context: Context, completion: @escaping (HomeWidgetEntry) -> Void) {
         let disk = HomeWidgetDisk.load() ?? .empty
+        if context.isPreview, disk.run == nil, disk.chains.isEmpty {
+            completion(HomeWidgetEntry(date: .now, phase: .idle([Self.galleryChain])))
+            return
+        }
         let plan = HomeWidgetTimeline.plan(disk: disk, now: .now)
         let item = plan.items[0]
         completion(HomeWidgetEntry(date: item.date, phase: item.phase))

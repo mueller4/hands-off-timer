@@ -15,8 +15,12 @@ final class ChainEngine {
     private var status: EngineStatus = .idle
     private var lastStepIndex = 0
     private var tickTask: Task<Void, Never>?
+    private var lastPersistAt: Date?
     private let persistURL: URL
     private let interval: TimeInterval
+    /// Crash restore is wall-clock based, so mid-step ticks do not need a write.
+    /// A coarse heartbeat still refreshes the file during a long step.
+    private static let persistHeartbeat: TimeInterval = 30
 
     private struct Session: Codable {
         var sessionId: UUID
@@ -148,8 +152,10 @@ final class ChainEngine {
                 )
             }
             lastStepIndex = progress.stepIndex
+            persist(now: now)
+        } else {
+            persist(now: now, force: false)
         }
-        persist()
         return publish(at: now)
     }
 
@@ -285,20 +291,27 @@ final class ChainEngine {
         tickTask = nil
     }
 
-    private func persist() {
+    /// `force` is for start, pause, resume, skip, and a step change.
+    /// Heartbeat writes are skipped until `persistHeartbeat` has elapsed.
+    private func persist(now: Date = .now, force: Bool = true) {
         guard let session, status == .running || status == .paused else { return }
+        if !force, let lastPersistAt, now.timeIntervalSince(lastPersistAt) < Self.persistHeartbeat {
+            return
+        }
         struct Box: Codable {
             var session: Session
             var status: EngineStatus
             var lastStepIndex: Int
         }
         let box = Box(session: session, status: status, lastStepIndex: lastStepIndex)
-        if let data = try? JSONEncoder().encode(box) {
-            try? data.write(to: persistURL, options: .atomic)
-        }
+        guard let data = try? JSONEncoder().encode(box) else { return }
+        try? data.write(to: persistURL, options: .atomic)
+        // Stamp even if the write failed so a full disk does not retry every tick.
+        lastPersistAt = now
     }
 
     private func clearPersist() {
+        lastPersistAt = nil
         try? FileManager.default.removeItem(at: persistURL)
     }
 
