@@ -1,14 +1,19 @@
 import SwiftUI
 
+private enum HomeRoute: Hashable {
+    case howItWorks
+}
+
 struct HomeView: View {
     @Environment(ChainStore.self) private var store
     @Environment(ChainEngine.self) private var engine
     @Environment(AppRouter.self) private var router
     @State private var showPermission = false
     @State private var pendingDelete: TimerChain?
+    @State private var path = NavigationPath()
 
     var body: some View {
-        NavigationStack {
+        NavigationStack(path: $path) {
             Group {
                 if store.chains.isEmpty {
                     empty
@@ -17,8 +22,20 @@ struct HomeView: View {
                 }
             }
             .navigationTitle("Hands-Off Timer")
+            .navigationDestination(for: HomeRoute.self) { _ in
+                HowItWorksView()
+            }
             .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
+                ToolbarItemGroup(placement: .topBarTrailing) {
+                    Button {
+                        path.append(HomeRoute.howItWorks)
+                    } label: {
+                        Image(systemName: "questionmark.circle")
+                            .foregroundStyle(WidgetPalette.accent)
+                    }
+                    .accessibilityLabel("How It Works")
+                    .tint(WidgetPalette.accent)
+
                     Button {
                         router.openNew()
                     } label: {
@@ -74,12 +91,23 @@ struct HomeView: View {
         } description: {
             Text("Build a sequence of timers that advance on their own. Start from Home — the editor only saves.")
         } actions: {
-            Button {
-                router.openNew()
-            } label: {
-                Text("New Chain")
+            VStack(spacing: 12) {
+                Button {
+                    router.openNew()
+                } label: {
+                    Text("New Chain")
+                }
+                .buttonStyle(.borderedProminent)
+
+                Button {
+                    path.append(HomeRoute.howItWorks)
+                } label: {
+                    Text("How it works")
+                        .font(.subheadline)
+                        .foregroundStyle(WidgetPalette.accent)
+                }
+                .buttonStyle(.plain)
             }
-            .buttonStyle(.borderedProminent)
         }
     }
 
