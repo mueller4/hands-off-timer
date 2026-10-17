@@ -20,6 +20,7 @@
 		DC90C3F9F0F4B7B68D6C5394 /* ChainActivityAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5C453F7819BDEFC4FD1089A9 /* ChainActivityAttributes.swift */; };
 		3A18342C764DF58E62D47496 /* LiveActivityController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C916EB88FD21246E3F08EE51 /* LiveActivityController.swift */; };
 		B5085FB6C95A5607070D3FC5 /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 45A5BF7B07F7FF986E9B3A91 /* HomeView.swift */; };
+		B3A011030000000000000001 /* HowItWorksView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3A0110300000000000000F1 /* HowItWorksView.swift */; };
 		C4C83229C0111A286D0D9F97 /* ChainEditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34E00C0261640F48231C7BC0 /* ChainEditorView.swift */; };
 		5D1976DC9439AC65DEBBDBE2 /* RunView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C28D4FBE1E1C7EFD6A5ACB0B /* RunView.swift */; };
 		7E9DCC1EAE6303F9CB931100 /* ChainActivityWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAAE56B25DB696C8EDBB7849 /* ChainActivityWidget.swift */; };
@@ -104,6 +105,7 @@
 		5C453F7819BDEFC4FD1089A9 /* ChainActivityAttributes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChainActivityAttributes.swift; sourceTree = "<group>"; };
 		C916EB88FD21246E3F08EE51 /* LiveActivityController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveActivityController.swift; sourceTree = "<group>"; };
 		45A5BF7B07F7FF986E9B3A91 /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
+		B3A0110300000000000000F1 /* HowItWorksView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HowItWorksView.swift; sourceTree = "<group>"; };
 		34E00C0261640F48231C7BC0 /* ChainEditorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChainEditorView.swift; sourceTree = "<group>"; };
 		C28D4FBE1E1C7EFD6A5ACB0B /* RunView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RunView.swift; sourceTree = "<group>"; };
 		FAAE56B25DB696C8EDBB7849 /* ChainActivityWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChainActivityWidget.swift; sourceTree = "<group>"; };
@@ -297,6 +299,7 @@
 			isa = PBXGroup;
 			children = (
 				45A5BF7B07F7FF986E9B3A91 /* HomeView.swift */,
+				B3A0110300000000000000F1 /* HowItWorksView.swift */,
 				34E00C0261640F48231C7BC0 /* ChainEditorView.swift */,
 				C28D4FBE1E1C7EFD6A5ACB0B /* RunView.swift */,
 			);
@@ -479,6 +482,7 @@
 				DC90C3F9F0F4B7B68D6C5394 /* ChainActivityAttributes.swift in Sources */,
 				3A18342C764DF58E62D47496 /* LiveActivityController.swift in Sources */,
 				B5085FB6C95A5607070D3FC5 /* HomeView.swift in Sources */,
+				B3A011030000000000000001 /* HowItWorksView.swift in Sources */,
 				C4C83229C0111A286D0D9F97 /* ChainEditorView.swift in Sources */,
 				5D1976DC9439AC65DEBBDBE2 /* RunView.swift in Sources */,
 				A11A01010000000000000001 /* AlarmKitGateway.swift in Sources */,
@@ -604,7 +608,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = HandsOffTimer/HandsOffTimer.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 3;
 				DEVELOPMENT_TEAM = 3LW54H3BCH;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -641,7 +645,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = HandsOffTimer/HandsOffTimer.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 3;
 				DEVELOPMENT_TEAM = 3LW54H3BCH;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -675,7 +679,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 3;
 				DEVELOPMENT_TEAM = 3LW54H3BCH;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = ChainActivityWidget/Info.plist;
@@ -705,7 +709,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 3;
 				DEVELOPMENT_TEAM = 3LW54H3BCH;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = ChainActivityWidget/Info.plist;
@@ -737,7 +741,7 @@
 				APPLICATION_EXTENSION_API_ONLY = YES;
 				CODE_SIGN_ENTITLEMENTS = HandsOffTimerWidget/HandsOffTimerWidget.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 3;
 				DEVELOPMENT_TEAM = 3LW54H3BCH;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = HandsOffTimerWidget/Info.plist;
@@ -767,7 +771,7 @@
 				APPLICATION_EXTENSION_API_ONLY = YES;
 				CODE_SIGN_ENTITLEMENTS = HandsOffTimerWidget/HandsOffTimerWidget.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 3;
 				DEVELOPMENT_TEAM = 3LW54H3BCH;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = HandsOffTimerWidget/Info.plist;
