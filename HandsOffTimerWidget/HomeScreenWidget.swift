@@ -21,6 +21,11 @@ struct HandsOffTimerHomeWidget: Widget {
         .description("See your next chain or live countdown on the Home Screen.")
         .supportedFamilies([.systemSmall, .systemMedium])
         .contentMarginsDisabled()
+        // CarPlay Dashboard QA judges the small Live Activity, not this widget.
+        // If that card does not read well, uncomment the next line so systemSmall
+        // is marked not optimized for CarPlay (`.disfavoredLocations([.carPlay])`).
+        // Do not add it before that call:
+        // .disfavoredLocations([.carPlay], for: [.systemSmall])
     }
 }
 
