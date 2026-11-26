@@ -25,11 +25,16 @@ struct HomeView: View {
     @State private var columnVisibility: NavigationSplitViewVisibility = .all
     @State private var pendingMove: PendingMove?
     @State private var showUnsaved = false
+    /// Regular-width detail. False after Save, so the column leaves the editor.
+    @State private var detailEditing = true
+    /// Bumps on a successful split Save. Drives a success haptic.
+    @State private var saveFeedback = 0
     /// Set while Start handles the tap, so a selectable row does not steal the editor.
     @State private var selectionIgnoredForStart: UUID?
 
     var body: some View {
         debugLaunch(homeContainer)
+            .sensoryFeedback(.success, trigger: saveFeedback)
             .sheet(isPresented: editorSheetPresented) {
                 ChainEditorView(
                     embedInStack: true,
@@ -317,14 +322,17 @@ struct HomeView: View {
                         }
                     }
             }
-        } else if router.draft != nil {
+        } else if detailEditing, router.draft != nil {
             ChainEditorView(
                 embedInStack: true,
                 showsToolbarSymbols: true,
                 fitsWheelsToColumn: true,
+                saveRequiresChanges: true,
                 onCancel: regularCancel,
-                onSave: { commitDraft() }
+                onSave: saveInSplit
             )
+        } else if let chain = selectedChain {
+            ChainDetailView(chain: chain, onEdit: { beginEditing(chain.id) })
         } else {
             Color.clear
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -501,19 +509,30 @@ struct HomeView: View {
         } else {
             return
         }
-        if router.draft?.chainID != resolved || router.draft == nil || router.draft?.isNew == true {
+        let needsDraft = router.draft?.chainID != resolved || router.draft == nil || router.draft?.isNew == true
+        if detailEditing, needsDraft {
             if let chain = store.chain(id: resolved), router.draft?.isDirty != true {
                 router.draft = EditorDraft(chain: chain, isNew: false)
                 router.editing = chain
                 router.isNewEditor = false
+                router.showEditor = false
             }
         }
         router.selectedChainID = resolved
     }
 
+    private var selectedChain: TimerChain? {
+        guard let id = router.selectedChainID else { return nil }
+        return store.chain(id: id)
+    }
+
     private func selectChainFromRow(_ id: UUID) {
         selectionIgnoredForStart = nil
         if selection == id {
+            if !detailEditing {
+                beginEditing(id)
+                return
+            }
             if router.showsHowItWorks {
                 if router.draft?.isDirty == true {
                     pendingMove = .select(id)
@@ -528,6 +547,12 @@ struct HomeView: View {
     }
 
     private func showChain(_ id: UUID) {
+        beginEditing(id)
+    }
+
+    /// Opens the editor for a sidebar tap. Does not set `showEditor`, so an
+    /// automatic selection cannot present the compact sheet.
+    private func beginEditing(_ id: UUID) {
         router.showsHowItWorks = false
         guard let chain = store.chain(id: id) else { return }
         if router.draft?.chainID != id || router.draft == nil || router.draft?.isNew == true {
@@ -537,6 +562,7 @@ struct HomeView: View {
         router.editing = chain
         router.isNewEditor = false
         router.showEditor = false
+        detailEditing = true
     }
 
     private func requestNewChain() {
@@ -545,6 +571,7 @@ struct HomeView: View {
             showUnsaved = true
             return
         }
+        detailEditing = true
         router.openNew()
     }
 
@@ -574,21 +601,32 @@ struct HomeView: View {
             router.showEditor = false
             router.editing = nil
             router.isNewEditor = false
+            detailEditing = false
             ensureDefaultSelection()
         }
     }
 
-    private func commitDraft() {
-        guard let draft = router.draft else { return }
+    /// Split Save: persist, then leave the editor so the detail shows the saved chain.
+    private func saveInSplit() {
+        guard commitDraft() else { return }
+        detailEditing = false
+        router.showEditor = false
+        saveFeedback += 1
+    }
+
+    @discardableResult
+    private func commitDraft() -> Bool {
+        guard let draft = router.draft else { return false }
         var chain = TimerChain(id: draft.chainID, name: draft.name, steps: draft.steps)
         chain.name = draft.name.trimmingCharacters(in: .whitespacesAndNewlines)
         store.upsert(chain)
-        guard let saved = store.chain(id: chain.id) else { return }
+        guard let saved = store.chain(id: chain.id) else { return false }
         draft.markSaved(chain: saved)
         router.selectedChainID = saved.id
         router.editing = saved
         router.isNewEditor = false
         router.showEditor = false
+        return true
     }
 
     private func discardDraft() {
@@ -611,8 +649,10 @@ struct HomeView: View {
     }
 
     private func saveAndCloseSheet() {
-        commitDraft()
+        guard commitDraft() else { return }
         if horizontalSizeClass == .regular, !store.chains.isEmpty {
+            detailEditing = false
+            saveFeedback += 1
             return
         }
         router.draft = nil
@@ -628,6 +668,7 @@ struct HomeView: View {
         case .select(let id):
             showChain(id)
         case .newChain:
+            detailEditing = true
             router.openNew()
         case .howItWorks:
             if router.draft == nil {
@@ -677,6 +718,52 @@ private enum DebugAutoStart {
     static var didStart = false
 }
 #endif
+
+/// Saved chain in the open detail column. Not the editor: Save leaves this on screen.
+private struct ChainDetailView: View {
+    let chain: TimerChain
+    var onEdit: () -> Void
+
+    var body: some View {
+        NavigationStack {
+            List {
+                Section {
+                    Text(chain.displayName)
+                        .font(.body.weight(.semibold))
+                } header: {
+                    Text("Name")
+                }
+
+                Section("Steps") {
+                    ForEach(Array(chain.steps.enumerated()), id: \.element.id) { index, step in
+                        HStack(alignment: .firstTextBaseline) {
+                            Text(step.displayLabel(index: index))
+                            Spacer(minLength: 12)
+                            Text(Formatters.duration(step.durationSeconds))
+                                .foregroundStyle(.secondary)
+                                .monospacedDigit()
+                        }
+                    }
+                }
+
+                Section {
+                    Text(Formatters.stepSummary(count: chain.steps.count, totalSeconds: chain.totalSeconds))
+                        .foregroundStyle(.secondary)
+                }
+            }
+            .navigationTitle(chain.displayName)
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .primaryAction) {
+                    Button(action: onEdit) {
+                        Label("Edit", systemImage: "pencil")
+                            .labelStyle(.titleAndIcon)
+                    }
+                }
+            }
+        }
+    }
+}
 
 /// Swipe / context menu only request delete. Confirm lives on the parent so it
 /// actually appears (row-level confirmationDialog after swipeActions is flaky).

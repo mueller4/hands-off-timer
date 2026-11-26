@@ -6,6 +6,8 @@ struct ChainEditorView: View {
     var showsToolbarSymbols: Bool = false
     /// Open detail column. Wheels share that column's width so they are not clipped.
     var fitsWheelsToColumn: Bool = false
+    /// Split editor. The checkmark stays disabled until the draft differs from the saved chain.
+    var saveRequiresChanges: Bool = false
     var onCancel: () -> Void
     var onSave: () -> Void
 
@@ -18,6 +20,7 @@ struct ChainEditorView: View {
                 embedInStack: embedInStack,
                 showsToolbarSymbols: showsToolbarSymbols,
                 fitsWheelsToColumn: fitsWheelsToColumn,
+                saveRequiresChanges: saveRequiresChanges,
                 onCancel: onCancel,
                 onSave: onSave
             )
@@ -31,11 +34,16 @@ private struct EditorForm: View {
     var embedInStack: Bool
     var showsToolbarSymbols: Bool
     var fitsWheelsToColumn: Bool
+    var saveRequiresChanges: Bool
     var onCancel: () -> Void
     var onSave: () -> Void
 
     private var savable: Bool {
-        TimerChain(id: draft.chainID, name: draft.name, steps: draft.steps).isSavable
+        let chainCanSave = TimerChain(id: draft.chainID, name: draft.name, steps: draft.steps).isSavable
+        if saveRequiresChanges {
+            return chainCanSave && draft.isDirty
+        }
+        return chainCanSave
     }
 
     var body: some View {
