@@ -208,8 +208,22 @@ struct HomeView: View {
             regularSidebar
         } detail: {
             regularDetail
+                .navigationSplitViewColumnWidth(min: 300, ideal: 380)
         }
         .navigationSplitViewStyle(.balanced)
+        .toolbar(removing: .sidebarToggle)
+        .onAppear {
+            if columnVisibility != .all {
+                columnVisibility = .all
+            }
+        }
+        .onChange(of: columnVisibility) { _, visibility in
+            // A narrow regular window (open portrait, 669 pt) otherwise drops the
+            // sidebar and shows it as a dimmed overlay. Keep both columns visible.
+            if visibility != .all {
+                columnVisibility = .all
+            }
+        }
     }
 
     private var regularSidebar: some View {
@@ -228,7 +242,8 @@ struct HomeView: View {
         .navigationTitle("Hands-Off Timer")
         .navigationBarTitleDisplayMode(.large)
         .listStyle(.insetGrouped)
-        .navigationSplitViewColumnWidth(min: 300, ideal: 340, max: 400)
+        .navigationSplitViewColumnWidth(min: 300, ideal: 320, max: 340)
+        .toolbar(removing: .sidebarToggle)
         .toolbar {
             ToolbarItemGroup(placement: .topBarTrailing) {
                 Button {
@@ -304,6 +319,7 @@ struct HomeView: View {
             ChainEditorView(
                 embedInStack: true,
                 showsToolbarSymbols: true,
+                fitsWheelsToColumn: true,
                 onCancel: regularCancel,
                 onSave: { commitDraft() }
             )

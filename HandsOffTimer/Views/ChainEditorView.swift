@@ -4,6 +4,8 @@ struct ChainEditorView: View {
     var embedInStack: Bool = true
     /// Icon and title so Cancel and Save still appear if the detail bar is vertical.
     var showsToolbarSymbols: Bool = false
+    /// Open detail column. Wheels share that column's width so they are not clipped.
+    var fitsWheelsToColumn: Bool = false
     var onCancel: () -> Void
     var onSave: () -> Void
 
@@ -15,6 +17,7 @@ struct ChainEditorView: View {
                 draft: draft,
                 embedInStack: embedInStack,
                 showsToolbarSymbols: showsToolbarSymbols,
+                fitsWheelsToColumn: fitsWheelsToColumn,
                 onCancel: onCancel,
                 onSave: onSave
             )
@@ -27,6 +30,7 @@ private struct EditorForm: View {
     @Bindable var draft: EditorDraft
     var embedInStack: Bool
     var showsToolbarSymbols: Bool
+    var fitsWheelsToColumn: Bool
     var onCancel: () -> Void
     var onSave: () -> Void
 
@@ -58,7 +62,8 @@ private struct EditorForm: View {
                 ForEach($draft.steps) { $step in
                     StepEditorRow(
                         step: $step,
-                        index: draft.steps.firstIndex(where: { $0.id == step.id }) ?? 0
+                        index: draft.steps.firstIndex(where: { $0.id == step.id }) ?? 0,
+                        fitsWheelsToColumn: fitsWheelsToColumn
                     )
                 }
                 .onMove(perform: move)
@@ -126,45 +131,90 @@ private struct EditorForm: View {
 struct StepEditorRow: View {
     @Binding var step: ChainStep
     var index: Int
+    /// Detail column on the open display. Compact sheet leaves this false.
+    var fitsWheelsToColumn: Bool = false
 
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
             TextField("Step \(index + 1)", text: $step.label)
-            HStack(spacing: 0) {
-                Picker("Minutes", selection: minutesBinding) {
-                    ForEach(0...99, id: \.self) { value in
-                        Text("\(value)").tag(value)
-                    }
-                }
-                .pickerStyle(.wheel)
-                .frame(maxWidth: .infinity)
-                .labelsHidden()
-                .accessibilityLabel("Minutes")
-
-                Text("min")
-                    .font(.footnote.weight(.semibold))
-                    .foregroundStyle(.secondary)
-                    .frame(width: 36, alignment: .leading)
-
-                Picker("Seconds", selection: secondsBinding) {
-                    ForEach(0...59, id: \.self) { value in
-                        Text(String(format: "%02d", value)).tag(value)
-                    }
-                }
-                .pickerStyle(.wheel)
-                .frame(maxWidth: .infinity)
-                .labelsHidden()
-                .accessibilityLabel("Seconds")
-
-                Text("sec")
-                    .font(.footnote.weight(.semibold))
-                    .foregroundStyle(.secondary)
-                    .frame(width: 36, alignment: .leading)
+            if fitsWheelsToColumn {
+                fittedWheels
+            } else {
+                wideWheels
             }
-            .frame(height: 120)
-            .clipped()
         }
         .padding(.vertical, 4)
+    }
+
+    /// Full-width sheet. Unchanged from the compact editor.
+    private var wideWheels: some View {
+        HStack(spacing: 0) {
+            minutesPicker
+                .frame(maxWidth: .infinity)
+            minuteLabel
+            secondsPicker
+                .frame(maxWidth: .infinity)
+            secondLabel
+        }
+        .frame(height: 120)
+        .clipped()
+    }
+
+    /// Each wheel gets half of the column after the unit labels, so a ~330 pt
+    /// detail pane shows both pickers instead of clipping one of them.
+    private var fittedWheels: some View {
+        GeometryReader { geo in
+            let labelWidth: CGFloat = 36
+            let wheelWidth = max(72, (geo.size.width - labelWidth * 2) / 2)
+            HStack(spacing: 0) {
+                minutesPicker
+                    .frame(width: wheelWidth, height: 120)
+                    .clipped()
+                minuteLabel
+                secondsPicker
+                    .frame(width: wheelWidth, height: 120)
+                    .clipped()
+                secondLabel
+            }
+        }
+        .frame(height: 120)
+        .frame(minWidth: 220, idealWidth: 280, maxWidth: .infinity)
+    }
+
+    private var minutesPicker: some View {
+        Picker("Minutes", selection: minutesBinding) {
+            ForEach(0...99, id: \.self) { value in
+                Text("\(value)").tag(value)
+            }
+        }
+        .pickerStyle(.wheel)
+        .labelsHidden()
+        .accessibilityLabel("Minutes")
+    }
+
+    private var secondsPicker: some View {
+        Picker("Seconds", selection: secondsBinding) {
+            ForEach(0...59, id: \.self) { value in
+                Text(String(format: "%02d", value)).tag(value)
+            }
+        }
+        .pickerStyle(.wheel)
+        .labelsHidden()
+        .accessibilityLabel("Seconds")
+    }
+
+    private var minuteLabel: some View {
+        Text("min")
+            .font(.footnote.weight(.semibold))
+            .foregroundStyle(.secondary)
+            .frame(width: 36, alignment: .leading)
+    }
+
+    private var secondLabel: some View {
+        Text("sec")
+            .font(.footnote.weight(.semibold))
+            .foregroundStyle(.secondary)
+            .frame(width: 36, alignment: .leading)
     }
 
     private var minutesBinding: Binding<Int> {
