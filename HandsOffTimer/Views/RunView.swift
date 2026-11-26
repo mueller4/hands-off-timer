@@ -54,8 +54,8 @@ struct RunView: View {
     }
 
     private var running: some View {
-        // The 84pt readout plus the 92pt controls overflow compact-height
-        // iPhone landscape. Keep this column when it fits; scroll when it does not.
+        // The 84pt readout plus the 92pt controls overflow a short height
+        // (the open Duo screen). Keep this column when it fits; scroll when it does not.
         fittingHeight { runningColumn }
     }
 

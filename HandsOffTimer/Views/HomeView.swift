@@ -90,8 +90,8 @@ struct HomeView: View {
         }
     }
 
-    /// ContentUnavailableView accepts any height and clips. iPhone landscape is a
-    /// compact height, so force a scroll view and ask for the content's ideal height.
+    /// ContentUnavailableView accepts any height and clips. A compact height
+    /// (the open Duo screen) forces a scroll view and asks for the ideal height.
     @ViewBuilder
     private var empty: some View {
         if verticalSizeClass == .compact {
