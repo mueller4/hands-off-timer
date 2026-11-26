@@ -50,6 +50,7 @@
 		A20000000000000000000054 /* Formatters.swift in Sources */ = {isa = PBXBuildFile; fileRef = 033C2AAB8205777E3072DF72 /* Formatters.swift */; };
 		A20000000000000000000055 /* WidgetPalette.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000048 /* WidgetPalette.swift */; };
 		A20000000000000000000056 /* WidgetPalette.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000048 /* WidgetPalette.swift */; };
+		A2000000000000000000005C /* WidgetPalette.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000048 /* WidgetPalette.swift */; };
 		A20000000000000000000057 /* HomeScreenWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000044 /* HomeScreenWidget.swift */; };
 		A20000000000000000000058 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000047 /* Assets.xcassets */; };
 		A20000000000000000000059 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5252A49CB41A8E76CF422EEB /* WidgetKit.framework */; };
@@ -503,6 +504,7 @@
 				16E39014F9B7195E7BF70290 /* ChainActivityAttributes.swift in Sources */,
 				A11A01010000000000000004 /* StepEndMetadata.swift in Sources */,
 				A11A01010000000000000005 /* StepEndAlarmActivity.swift in Sources */,
+				A2000000000000000000005C /* WidgetPalette.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -608,7 +610,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = HandsOffTimer/HandsOffTimer.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 3;
+				CURRENT_PROJECT_VERSION = 4;
 				DEVELOPMENT_TEAM = 3LW54H3BCH;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -623,7 +625,7 @@
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
 				LD_RUNPATH_SEARCH_PATHS = ("$(inherited)", "@executable_path/Frameworks", );
-				MARKETING_VERSION = 1.1;
+				MARKETING_VERSION = 1.2;
 				OTHER_LDFLAGS = ("$(inherited)", "-framework", "AlarmKit", "-framework", "AppIntents", "-framework", "ActivityKit", "-framework", "WidgetKit");
 				PRODUCT_BUNDLE_IDENTIFIER = com.mueller4.HandsOffTimer;
 				PRODUCT_NAME = "HandsOffTimer";
@@ -645,7 +647,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = HandsOffTimer/HandsOffTimer.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 3;
+				CURRENT_PROJECT_VERSION = 4;
 				DEVELOPMENT_TEAM = 3LW54H3BCH;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -660,7 +662,7 @@
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
 				LD_RUNPATH_SEARCH_PATHS = ("$(inherited)", "@executable_path/Frameworks", );
-				MARKETING_VERSION = 1.1;
+				MARKETING_VERSION = 1.2;
 				OTHER_LDFLAGS = ("$(inherited)", "-framework", "AlarmKit", "-framework", "AppIntents", "-framework", "ActivityKit", "-framework", "WidgetKit");
 				PRODUCT_BUNDLE_IDENTIFIER = com.mueller4.HandsOffTimer;
 				PRODUCT_NAME = "HandsOffTimer";
@@ -679,7 +681,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 3;
+				CURRENT_PROJECT_VERSION = 4;
 				DEVELOPMENT_TEAM = 3LW54H3BCH;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = ChainActivityWidget/Info.plist;
@@ -688,7 +690,7 @@
 				INFOPLIST_KEY_NSSupportsLiveActivities = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
 				LD_RUNPATH_SEARCH_PATHS = ("$(inherited)", "@executable_path/Frameworks", "@executable_path/../../Frameworks", );
-				MARKETING_VERSION = 1.1;
+				MARKETING_VERSION = 1.2;
 				OTHER_LDFLAGS = ("$(inherited)", "-framework", "AlarmKit", "-framework", "AppIntents", "-framework", "WidgetKit", "-framework", "ActivityKit");
 				PRODUCT_BUNDLE_IDENTIFIER = com.mueller4.HandsOffTimer.ChainActivity;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -709,7 +711,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 3;
+				CURRENT_PROJECT_VERSION = 4;
 				DEVELOPMENT_TEAM = 3LW54H3BCH;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = ChainActivityWidget/Info.plist;
@@ -718,7 +720,7 @@
 				INFOPLIST_KEY_NSSupportsLiveActivities = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
 				LD_RUNPATH_SEARCH_PATHS = ("$(inherited)", "@executable_path/Frameworks", "@executable_path/../../Frameworks", );
-				MARKETING_VERSION = 1.1;
+				MARKETING_VERSION = 1.2;
 				OTHER_LDFLAGS = ("$(inherited)", "-framework", "AlarmKit", "-framework", "AppIntents", "-framework", "WidgetKit", "-framework", "ActivityKit");
 				PRODUCT_BUNDLE_IDENTIFIER = com.mueller4.HandsOffTimer.ChainActivity;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -741,7 +743,7 @@
 				APPLICATION_EXTENSION_API_ONLY = YES;
 				CODE_SIGN_ENTITLEMENTS = HandsOffTimerWidget/HandsOffTimerWidget.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 3;
+				CURRENT_PROJECT_VERSION = 4;
 				DEVELOPMENT_TEAM = 3LW54H3BCH;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = HandsOffTimerWidget/Info.plist;
@@ -749,7 +751,7 @@
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
 				LD_RUNPATH_SEARCH_PATHS = ("$(inherited)", "@executable_path/Frameworks", "@executable_path/../../Frameworks", );
-				MARKETING_VERSION = 1.1;
+				MARKETING_VERSION = 1.2;
 				OTHER_LDFLAGS = ("$(inherited)", "-framework", "WidgetKit", "-framework", "SwiftUI");
 				PRODUCT_BUNDLE_IDENTIFIER = com.mueller4.HandsOffTimer.HomeWidget;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -771,7 +773,7 @@
 				APPLICATION_EXTENSION_API_ONLY = YES;
 				CODE_SIGN_ENTITLEMENTS = HandsOffTimerWidget/HandsOffTimerWidget.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 3;
+				CURRENT_PROJECT_VERSION = 4;
 				DEVELOPMENT_TEAM = 3LW54H3BCH;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = HandsOffTimerWidget/Info.plist;
@@ -779,7 +781,7 @@
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
 				LD_RUNPATH_SEARCH_PATHS = ("$(inherited)", "@executable_path/Frameworks", "@executable_path/../../Frameworks", );
-				MARKETING_VERSION = 1.1;
+				MARKETING_VERSION = 1.2;
 				OTHER_LDFLAGS = ("$(inherited)", "-framework", "WidgetKit", "-framework", "SwiftUI");
 				PRODUCT_BUNDLE_IDENTIFIER = com.mueller4.HandsOffTimer.HomeWidget;
 				PRODUCT_NAME = "$(TARGET_NAME)";
