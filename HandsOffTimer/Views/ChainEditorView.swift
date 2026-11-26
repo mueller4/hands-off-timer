@@ -1,104 +1,125 @@
 import SwiftUI
 
 struct ChainEditorView: View {
-    @Environment(ChainStore.self) private var store
+    var embedInStack: Bool = true
+    /// Icon and title so Cancel and Save still appear if the detail bar is vertical.
+    var showsToolbarSymbols: Bool = false
+    var onCancel: () -> Void
+    var onSave: () -> Void
+
     @Environment(AppRouter.self) private var router
-    @Environment(\.dismiss) private var dismiss
 
-    let isNew: Bool
-    @State private var name: String
-    @State private var steps: [ChainStep]
-
-    init(isNew: Bool, original: TimerChain) {
-        self.isNew = isNew
-        _name = State(initialValue: original.name)
-        _steps = State(initialValue: original.steps)
-        self.originalID = original.id
+    var body: some View {
+        if let draft = router.draft {
+            EditorForm(
+                draft: draft,
+                embedInStack: embedInStack,
+                showsToolbarSymbols: showsToolbarSymbols,
+                onCancel: onCancel,
+                onSave: onSave
+            )
+            .id(ObjectIdentifier(draft))
+        }
     }
+}
 
-    private let originalID: UUID
+private struct EditorForm: View {
+    @Bindable var draft: EditorDraft
+    var embedInStack: Bool
+    var showsToolbarSymbols: Bool
+    var onCancel: () -> Void
+    var onSave: () -> Void
 
     private var savable: Bool {
-        TimerChain(id: originalID, name: name, steps: steps).isSavable
+        TimerChain(id: draft.chainID, name: draft.name, steps: draft.steps).isSavable
     }
 
     var body: some View {
-        NavigationStack {
-            List {
-                Section {
-                    TextField(TimerChain.defaultName, text: $name)
-                        .textInputAutocapitalization(.words)
-                } header: {
-                    Text("Name")
-                } footer: {
-                    Text("Optional. Empty names save as Untitled chain.")
-                }
+        if embedInStack {
+            NavigationStack { form }
+                .interactiveDismissDisabled()
+        } else {
+            form
+        }
+    }
 
-                Section("Steps") {
-                    ForEach($steps) { $step in
-                        StepEditorRow(
-                            step: $step,
-                            index: steps.firstIndex(where: { $0.id == step.id }) ?? 0
-                        )
-                    }
-                    .onMove(perform: move)
-                    .onDelete(perform: delete)
-                }
+    private var form: some View {
+        List {
+            Section {
+                TextField(TimerChain.defaultName, text: $draft.name)
+                    .textInputAutocapitalization(.words)
+            } header: {
+                Text("Name")
+            } footer: {
+                Text("Optional. Empty names save as Untitled chain.")
+            }
 
-                Section {
-                    Button {
-                        steps.append(ChainStep())
-                    } label: {
-                        Label("Add Step", systemImage: "plus")
-                    }
+            Section("Steps") {
+                ForEach($draft.steps) { $step in
+                    StepEditorRow(
+                        step: $step,
+                        index: draft.steps.firstIndex(where: { $0.id == step.id }) ?? 0
+                    )
                 }
+                .onMove(perform: move)
+                .onDelete(perform: delete)
+            }
 
-                Section {
-                    EmptyView()
-                } footer: {
-                    if steps.count < TimerChain.minSteps {
-                        Text("Add at least two steps to save.")
-                    } else if steps.contains(where: { $0.durationSeconds < TimerChain.minStepSeconds }) {
-                        Text("Each step needs at least 1 second.")
-                    } else {
-                        Text("Start lives on Home. Save here, then run the chain from the list.")
-                    }
+            Section {
+                Button {
+                    draft.steps.append(ChainStep())
+                } label: {
+                    Label("Add Step", systemImage: "plus")
                 }
             }
-            .environment(\.editMode, .constant(.active))
-            .navigationTitle(isNew ? "New Chain" : "Edit Chain")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel") {
-                        router.closeEditor()
-                        dismiss()
-                    }
-                }
-                ToolbarItem(placement: .confirmationAction) {
-                    Button("Save") { save() }
-                        .disabled(!savable)
-                        .fontWeight(.semibold)
+
+            Section {
+                EmptyView()
+            } footer: {
+                if draft.steps.count < TimerChain.minSteps {
+                    Text("Add at least two steps to save.")
+                } else if draft.steps.contains(where: { $0.durationSeconds < TimerChain.minStepSeconds }) {
+                    Text("Each step needs at least 1 second.")
+                } else {
+                    Text("Start lives on Home. Save here, then run the chain from the list.")
                 }
             }
         }
-        .interactiveDismissDisabled()
+        .environment(\.editMode, .constant(.active))
+        .navigationTitle(draft.isNew ? "New Chain" : "Edit Chain")
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .cancellationAction) {
+                Button(action: onCancel) {
+                    if showsToolbarSymbols {
+                        Label("Cancel", systemImage: "xmark")
+                            .labelStyle(.titleAndIcon)
+                    } else {
+                        Text("Cancel")
+                    }
+                }
+            }
+            ToolbarItem(placement: .confirmationAction) {
+                Button(action: onSave) {
+                    if showsToolbarSymbols {
+                        Label("Save", systemImage: "checkmark")
+                            .labelStyle(.titleAndIcon)
+                    } else {
+                        Text("Save")
+                    }
+                }
+                .disabled(!savable)
+                .fontWeight(.semibold)
+            }
+        }
     }
 
     private func move(from source: IndexSet, to destination: Int) {
-        steps.move(fromOffsets: source, toOffset: destination)
+        draft.steps.move(fromOffsets: source, toOffset: destination)
     }
 
     private func delete(at offsets: IndexSet) {
-        steps.remove(atOffsets: offsets)
-    }
-
-    private func save() {
-        var chain = TimerChain(id: originalID, name: name, steps: steps)
-        chain.name = name.trimmingCharacters(in: .whitespacesAndNewlines)
-        store.upsert(chain)
-        router.closeEditor()
-        dismiss()
+        draft.steps.remove(atOffsets: offsets)
     }
 }
 
