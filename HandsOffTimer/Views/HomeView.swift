@@ -144,10 +144,12 @@ struct HomeView: View {
     }
 
     private var showsEditorSheet: Bool {
-        guard router.draft != nil else { return false }
+        guard let draft = router.draft else { return false }
         if usesRegularSplit { return false }
         if router.showsHowItWorks { return false }
-        return true
+        // The split's auto-selected chain keeps a clean draft so unfold can
+        // restore the detail. That draft must not cover the compact list.
+        return draft.isDirty || router.showEditor
     }
 
     /// Size-class changes dismiss the sheet by flipping this binding. The setter
@@ -455,6 +457,17 @@ struct HomeView: View {
             }
         } else if path.contains(.howItWorks) {
             path = []
+        }
+        // Folding closes a clean editor and lands on the list. The selected
+        // chain id stays, so opening the display restores the same split.
+        // A dirty draft stays presented and is not discarded.
+        if router.draft?.isDirty == true {
+            router.showEditor = true
+        } else {
+            router.showEditor = false
+            router.draft = nil
+            router.editing = nil
+            router.isNewEditor = false
         }
     }
 
