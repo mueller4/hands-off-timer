@@ -36,8 +36,7 @@ struct HomeView: View {
             .sheet(isPresented: editorSheetPresented) {
                 ChainEditorView(
                     embedInStack: true,
-                    showsToolbarSymbols: false,
-                    onCancel: { router.closeEditor() },
+                    onCancel: cancelEditor,
                     onSave: saveAndCloseSheet
                 )
             }
@@ -69,12 +68,7 @@ struct HomeView: View {
             .alert("Save changes to this chain?", isPresented: $showUnsaved) {
                 Button("Save") {
                     if pendingMove == .cancel {
-                        if commitDraft() {
-                            router.isEditingDetail = false
-                            router.selectionBeforeNew = nil
-                            saveFeedback += 1
-                        }
-                        pendingMove = nil
+                        confirmCancel(save: true)
                     } else {
                         commitDraft()
                         performPending()
@@ -82,8 +76,7 @@ struct HomeView: View {
                 }
                 Button("Discard", role: .destructive) {
                     if pendingMove == .cancel {
-                        router.cancelEditing()
-                        pendingMove = nil
+                        confirmCancel(save: false)
                     } else {
                         discardDraft()
                         performPending()
@@ -337,10 +330,8 @@ struct HomeView: View {
         } else if router.isEditingDetail, router.draft != nil {
             ChainEditorView(
                 embedInStack: true,
-                showsToolbarSymbols: true,
                 fitsWheelsToColumn: true,
-                saveRequiresChanges: true,
-                onCancel: regularCancel,
+                onCancel: cancelEditor,
                 onSave: saveInSplit
             )
         } else if let chain = selectedChain {
@@ -601,9 +592,11 @@ struct HomeView: View {
         path.append(.howItWorks)
     }
 
-    private func regularCancel() {
+    /// Shared by the compact sheet and the open detail column.
+    /// A dirty draft asks Save / Discard / Cancel. A clean one just leaves.
+    private func cancelEditor() {
         guard router.draft != nil else {
-            router.cancelEditing()
+            dismissEditor(saved: false)
             return
         }
         if router.draft?.isDirty == true {
@@ -611,7 +604,42 @@ struct HomeView: View {
             showUnsaved = true
             return
         }
-        router.cancelEditing()
+        dismissEditor(saved: false)
+    }
+
+    /// Finishes a dirty-cancel alert. Save persists first. The sheet dismisses
+    /// on compact; the split returns to the saved chain.
+    private func confirmCancel(save: Bool) {
+        if save {
+            guard commitDraft() else {
+                pendingMove = nil
+                return
+            }
+        }
+        pendingMove = nil
+        dismissEditor(saved: save)
+    }
+
+    private func dismissEditor(saved: Bool) {
+        if usesRegularSplit || (saved && horizontalSizeClass == .regular && !store.chains.isEmpty) {
+            if saved {
+                router.isEditingDetail = false
+                router.selectionBeforeNew = nil
+                router.showEditor = false
+                saveFeedback += 1
+            } else {
+                router.cancelEditing()
+            }
+            return
+        }
+        if saved {
+            router.draft = nil
+            router.showEditor = false
+            router.editing = nil
+            router.isNewEditor = false
+        } else {
+            router.closeEditor()
+        }
     }
 
     /// Split Save: persist, then leave the editor so the detail shows the saved chain.

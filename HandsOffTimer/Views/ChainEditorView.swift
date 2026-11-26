@@ -2,12 +2,8 @@ import SwiftUI
 
 struct ChainEditorView: View {
     var embedInStack: Bool = true
-    /// Icon and title so Cancel and Save still appear if the detail bar is vertical.
-    var showsToolbarSymbols: Bool = false
     /// Open detail column. Wheels share that column's width so they are not clipped.
     var fitsWheelsToColumn: Bool = false
-    /// Split editor. The checkmark stays disabled until the draft differs from the saved chain.
-    var saveRequiresChanges: Bool = false
     var onCancel: () -> Void
     var onSave: () -> Void
 
@@ -18,9 +14,7 @@ struct ChainEditorView: View {
             EditorForm(
                 draft: draft,
                 embedInStack: embedInStack,
-                showsToolbarSymbols: showsToolbarSymbols,
                 fitsWheelsToColumn: fitsWheelsToColumn,
-                saveRequiresChanges: saveRequiresChanges,
                 onCancel: onCancel,
                 onSave: onSave
             )
@@ -32,18 +26,14 @@ struct ChainEditorView: View {
 private struct EditorForm: View {
     @Bindable var draft: EditorDraft
     var embedInStack: Bool
-    var showsToolbarSymbols: Bool
     var fitsWheelsToColumn: Bool
-    var saveRequiresChanges: Bool
     var onCancel: () -> Void
     var onSave: () -> Void
 
+    /// Checkmark stays off until the chain can be saved and the draft differs from what is stored.
     private var savable: Bool {
         let chainCanSave = TimerChain(id: draft.chainID, name: draft.name, steps: draft.steps).isSavable
-        if saveRequiresChanges {
-            return chainCanSave && draft.isDirty
-        }
-        return chainCanSave
+        return chainCanSave && draft.isDirty
     }
 
     var body: some View {
@@ -104,23 +94,17 @@ private struct EditorForm: View {
         .toolbar {
             ToolbarItem(placement: .cancellationAction) {
                 Button(action: onCancel) {
-                    if showsToolbarSymbols {
-                        Label("Cancel", systemImage: "xmark")
-                            .labelStyle(.titleAndIcon)
-                    } else {
-                        Text("Cancel")
-                    }
+                    Label("Cancel", systemImage: "xmark")
+                        .labelStyle(.titleAndIcon)
                 }
+                .accessibilityLabel("Cancel")
             }
             ToolbarItem(placement: .confirmationAction) {
                 Button(action: onSave) {
-                    if showsToolbarSymbols {
-                        Label("Save", systemImage: "checkmark")
-                            .labelStyle(.titleAndIcon)
-                    } else {
-                        Text("Save")
-                    }
+                    Label("Save", systemImage: "checkmark")
+                        .labelStyle(.titleAndIcon)
                 }
+                .accessibilityLabel("Save")
                 .disabled(!savable)
                 .fontWeight(.semibold)
             }
