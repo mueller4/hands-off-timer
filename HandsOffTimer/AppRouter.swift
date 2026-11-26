@@ -52,6 +52,12 @@ final class AppRouter {
     var draft: EditorDraft?
     /// How It Works is showing. On a regular-width window it occupies the detail column.
     var showsHowItWorks = false
+    /// Regular-width detail is the editor. False after Save or Cancel, which shows the saved chain.
+    var isEditingDetail = true
+    /// Chain that was selected before New Chain, so Cancel can return to it.
+    var selectionBeforeNew: UUID?
+    /// Cancel on a new chain with nothing underneath. Don't auto-select another chain.
+    var holdEmptySelection = false
     /// Most recently started chain. Nil until something has run.
     private(set) var lastRunChainID: UUID?
 
@@ -75,6 +81,10 @@ final class AppRouter {
     }
 
     func openNew() {
+        if let selectedChainID {
+            selectionBeforeNew = selectedChainID
+        }
+        holdEmptySelection = false
         let chain = TimerChain()
         draft = EditorDraft(chain: chain, isNew: true)
         editing = chain
@@ -82,6 +92,7 @@ final class AppRouter {
         showEditor = true
         selectedChainID = nil
         showsHowItWorks = false
+        isEditingDetail = true
     }
 
     func openEdit(_ chain: TimerChain) {
@@ -91,6 +102,8 @@ final class AppRouter {
         showEditor = true
         selectedChainID = chain.id
         showsHowItWorks = false
+        isEditingDetail = true
+        holdEmptySelection = false
     }
 
     func closeEditor() {
@@ -99,5 +112,23 @@ final class AppRouter {
         isNewEditor = false
         draft = nil
         showsHowItWorks = false
+    }
+
+    /// Discard the open detail draft and leave the editor. Existing chains keep
+    /// their selection so the read-only detail can show the saved chain. A new
+    /// chain returns to the selection from before New Chain, or to no selection.
+    func cancelEditing() {
+        let wasNew = draft?.isNew == true
+        let restore = selectionBeforeNew
+        showEditor = false
+        editing = nil
+        isNewEditor = false
+        draft = nil
+        selectionBeforeNew = nil
+        isEditingDetail = false
+        if wasNew {
+            selectedChainID = restore
+            holdEmptySelection = restore == nil
+        }
     }
 }

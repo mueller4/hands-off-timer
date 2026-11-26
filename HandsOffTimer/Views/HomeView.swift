@@ -25,8 +25,6 @@ struct HomeView: View {
     @State private var columnVisibility: NavigationSplitViewVisibility = .all
     @State private var pendingMove: PendingMove?
     @State private var showUnsaved = false
-    /// Regular-width detail. False after Save, so the column leaves the editor.
-    @State private var detailEditing = true
     /// Bumps on a successful split Save. Drives a success haptic.
     @State private var saveFeedback = 0
     /// Set while Start handles the tap, so a selectable row does not steal the editor.
@@ -70,12 +68,26 @@ struct HomeView: View {
             }
             .alert("Save changes to this chain?", isPresented: $showUnsaved) {
                 Button("Save") {
-                    commitDraft()
-                    performPending()
+                    if pendingMove == .cancel {
+                        if commitDraft() {
+                            router.isEditingDetail = false
+                            router.selectionBeforeNew = nil
+                            saveFeedback += 1
+                        }
+                        pendingMove = nil
+                    } else {
+                        commitDraft()
+                        performPending()
+                    }
                 }
                 Button("Discard", role: .destructive) {
-                    discardDraft()
-                    performPending()
+                    if pendingMove == .cancel {
+                        router.cancelEditing()
+                        pendingMove = nil
+                    } else {
+                        discardDraft()
+                        performPending()
+                    }
                 }
                 Button("Cancel", role: .cancel) {
                     pendingMove = nil
@@ -322,7 +334,7 @@ struct HomeView: View {
                         }
                     }
             }
-        } else if detailEditing, router.draft != nil {
+        } else if router.isEditingDetail, router.draft != nil {
             ChainEditorView(
                 embedInStack: true,
                 showsToolbarSymbols: true,
@@ -481,6 +493,7 @@ struct HomeView: View {
 
     private func ensureDefaultSelection() {
         guard horizontalSizeClass == .regular else { return }
+        if router.holdEmptySelection { return }
         if let draft = router.draft, draft.isNew {
             router.selectedChainID = nil
             return
@@ -510,7 +523,7 @@ struct HomeView: View {
             return
         }
         let needsDraft = router.draft?.chainID != resolved || router.draft == nil || router.draft?.isNew == true
-        if detailEditing, needsDraft {
+        if router.isEditingDetail, needsDraft {
             if let chain = store.chain(id: resolved), router.draft?.isDirty != true {
                 router.draft = EditorDraft(chain: chain, isNew: false)
                 router.editing = chain
@@ -529,7 +542,7 @@ struct HomeView: View {
     private func selectChainFromRow(_ id: UUID) {
         selectionIgnoredForStart = nil
         if selection == id {
-            if !detailEditing {
+            if !router.isEditingDetail {
                 beginEditing(id)
                 return
             }
@@ -562,7 +575,8 @@ struct HomeView: View {
         router.editing = chain
         router.isNewEditor = false
         router.showEditor = false
-        detailEditing = true
+        router.holdEmptySelection = false
+        router.isEditingDetail = true
     }
 
     private func requestNewChain() {
@@ -571,7 +585,6 @@ struct HomeView: View {
             showUnsaved = true
             return
         }
-        detailEditing = true
         router.openNew()
     }
 
@@ -589,27 +602,23 @@ struct HomeView: View {
     }
 
     private func regularCancel() {
-        guard let draft = router.draft else { return }
-        if draft.isDirty {
+        guard router.draft != nil else {
+            router.cancelEditing()
+            return
+        }
+        if router.draft?.isDirty == true {
             pendingMove = .cancel
             showUnsaved = true
             return
         }
-        if draft.isNew {
-            router.draft = nil
-            router.selectedChainID = nil
-            router.showEditor = false
-            router.editing = nil
-            router.isNewEditor = false
-            detailEditing = false
-            ensureDefaultSelection()
-        }
+        router.cancelEditing()
     }
 
     /// Split Save: persist, then leave the editor so the detail shows the saved chain.
     private func saveInSplit() {
         guard commitDraft() else { return }
-        detailEditing = false
+        router.isEditingDetail = false
+        router.selectionBeforeNew = nil
         router.showEditor = false
         saveFeedback += 1
     }
@@ -651,7 +660,8 @@ struct HomeView: View {
     private func saveAndCloseSheet() {
         guard commitDraft() else { return }
         if horizontalSizeClass == .regular, !store.chains.isEmpty {
-            detailEditing = false
+            router.isEditingDetail = false
+            router.selectionBeforeNew = nil
             saveFeedback += 1
             return
         }
@@ -668,7 +678,6 @@ struct HomeView: View {
         case .select(let id):
             showChain(id)
         case .newChain:
-            detailEditing = true
             router.openNew()
         case .howItWorks:
             if router.draft == nil {
@@ -676,11 +685,7 @@ struct HomeView: View {
             }
             router.showsHowItWorks = true
         case .cancel:
-            if router.draft == nil || router.draft?.isNew == true {
-                router.draft = nil
-                router.selectedChainID = nil
-                ensureDefaultSelection()
-            }
+            router.cancelEditing()
         case nil:
             break
         }
