@@ -7,11 +7,6 @@ struct ContentView: View {
 
     var body: some View {
         HomeView()
-            .sheet(isPresented: editorBinding) {
-                if let draft = router.editing {
-                    ChainEditorView(isNew: router.isNewEditor, original: draft)
-                }
-            }
             .fullScreenCover(isPresented: runBinding) {
                 RunView()
             }
@@ -32,13 +27,6 @@ struct ContentView: View {
             .onChange(of: store.chains) { _, chains in
                 HomeWidgetPublisher.publish(chains: chains, snapshot: engine.snapshot)
             }
-    }
-
-    private var editorBinding: Binding<Bool> {
-        Binding(
-            get: { router.showEditor },
-            set: { router.showEditor = $0 }
-        )
     }
 
     private var runBinding: Binding<Bool> {

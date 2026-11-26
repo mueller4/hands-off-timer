@@ -1,7 +1,7 @@
 import SwiftUI
 
-/// Static How It Works guide. Copy is the 1.1 (3) product spec, verbatim.
-/// Local text only: no network, no templates, no timer controls.
+/// Static How It Works guide. Local text only: no network, no templates, no timer controls.
+/// The first sections are the 1.1 copy. The unfolded section is shown on every device.
 struct HowItWorksView: View {
     var body: some View {
         ScrollView {
@@ -120,6 +120,11 @@ private enum HowItWorksContent {
             symbol: "square.grid.2x2",
             title: "Widget",
             text: "Add the Hands-Off Timer widget to your Home Screen to see recent chains or the live countdown. Tap it to open the app."
+        ),
+        HowToSection(
+            symbol: "rectangle.split.2x1",
+            title: "Unfolded & tabletop",
+            text: "Unfold the screen and Home splits in two: your chains on the left, the selected chain on the right. Tap Start on a row to run it.\n\nTap a chain, or Edit, to change it. The checkmark saves and the X cancels. After you save, you see the saved chain.\n\nWhile a chain is running unfolded, the timer and the step list sit side by side.\n\nFold it partway, like a laptop on a counter. The countdown moves to the top half and the buttons sit below, so you can leave it hands-free.\n\nFold or unfold whenever you like. The timer keeps going, and unsaved edits stay with you."
         ),
     ]
 
