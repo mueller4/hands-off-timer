@@ -30,10 +30,11 @@ private struct EditorForm: View {
     var onCancel: () -> Void
     var onSave: () -> Void
 
-    /// Checkmark stays off until the chain can be saved and the draft differs from what is stored.
+    /// A new chain (default steps, empty name) can be saved immediately, as in 1.1.
+    /// An existing chain stays disabled until the draft differs from what is stored.
     private var savable: Bool {
         let chainCanSave = TimerChain(id: draft.chainID, name: draft.name, steps: draft.steps).isSavable
-        return chainCanSave && draft.isDirty
+        return chainCanSave && (draft.isNew || draft.isDirty)
     }
 
     var body: some View {
