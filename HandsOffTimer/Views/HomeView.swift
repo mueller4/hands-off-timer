@@ -217,6 +217,7 @@ struct HomeView: View {
             ForEach(store.chains) { chain in
                 ChainRowView(
                     chain: chain,
+                    keepsStartOnOneLine: true,
                     onEdit: { selectChainFromRow(chain.id) },
                     onStart: { start(chain) },
                     onRequestDelete: { pendingDelete = $0 }
@@ -226,7 +227,7 @@ struct HomeView: View {
         }
         .navigationTitle("Hands-Off Timer")
         .listStyle(.insetGrouped)
-        .navigationSplitViewColumnWidth(min: 220, ideal: 280, max: 360)
+        .navigationSplitViewColumnWidth(min: 300, ideal: 340, max: 400)
         .toolbar {
             ToolbarItemGroup(placement: .topBarTrailing) {
                 Button {
@@ -651,32 +652,19 @@ private enum DebugAutoStart {
 /// actually appears (row-level confirmationDialog after swipeActions is flaky).
 private struct ChainRowView: View {
     let chain: TimerChain
+    /// Regular-width sidebar only. Compact rows leave this false and keep today's layout.
+    var keepsStartOnOneLine: Bool = false
     let onEdit: () -> Void
     let onStart: () -> Void
     let onRequestDelete: (TimerChain) -> Void
 
     var body: some View {
-        HStack(spacing: 12) {
-            Button(action: onEdit) {
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(chain.displayName)
-                        .font(.body.weight(.semibold))
-                        .foregroundStyle(.primary)
-                    Text(Formatters.stepSummary(count: chain.steps.count, totalSeconds: chain.totalSeconds))
-                        .font(.footnote)
-                        .foregroundStyle(.secondary)
-                }
+        Group {
+            if keepsStartOnOneLine {
+                wideRow
+            } else {
+                compactRow
             }
-            .buttonStyle(.plain)
-            Spacer(minLength: 8)
-            Button(action: onStart) {
-                Label("Start", systemImage: "play.fill")
-                    .labelStyle(.titleAndIcon)
-                    .font(.subheadline.weight(.semibold))
-            }
-            .buttonStyle(.borderedProminent)
-            .tint(.green)
-            .controlSize(.small)
         }
         .swipeActions(edge: .trailing, allowsFullSwipe: false) {
             Button(role: .destructive) {
@@ -699,5 +687,67 @@ private struct ChainRowView: View {
                 Label("Delete", systemImage: "trash")
             }
         }
+    }
+
+    /// Compact and folded rows. Unchanged from the single-column list.
+    private var compactRow: some View {
+        HStack(spacing: 12) {
+            Button(action: onEdit) {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(chain.displayName)
+                        .font(.body.weight(.semibold))
+                        .foregroundStyle(.primary)
+                    Text(Formatters.stepSummary(count: chain.steps.count, totalSeconds: chain.totalSeconds))
+                        .font(.footnote)
+                        .foregroundStyle(.secondary)
+                }
+            }
+            .buttonStyle(.plain)
+            Spacer(minLength: 8)
+            startButton
+        }
+    }
+
+    /// Open sidebar: Start stays one line; the name uses whatever width is left.
+    private var wideRow: some View {
+        HStack(spacing: 12) {
+            Button(action: onEdit) {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(chain.displayName)
+                        .font(.body.weight(.semibold))
+                        .foregroundStyle(.primary)
+                        .lineLimit(2)
+                        .multilineTextAlignment(.leading)
+                    Text(Formatters.stepSummary(count: chain.steps.count, totalSeconds: chain.totalSeconds))
+                        .font(.footnote)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+            }
+            .buttonStyle(.plain)
+            Button(action: onStart) {
+                Label("Start", systemImage: "play.fill")
+                    .labelStyle(.titleAndIcon)
+                    .font(.subheadline.weight(.semibold))
+                    .lineLimit(1)
+                    .fixedSize()
+            }
+            .buttonStyle(.borderedProminent)
+            .tint(.green)
+            .controlSize(.small)
+            .fixedSize(horizontal: true, vertical: false)
+        }
+    }
+
+    private var startButton: some View {
+        Button(action: onStart) {
+            Label("Start", systemImage: "play.fill")
+                .labelStyle(.titleAndIcon)
+                .font(.subheadline.weight(.semibold))
+        }
+        .buttonStyle(.borderedProminent)
+        .tint(.green)
+        .controlSize(.small)
     }
 }
