@@ -13,6 +13,9 @@ final class ChainStore {
         try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
         url = dir.appendingPathComponent("chains.json")
         load()
+        #if DEBUG
+        seedSampleChainsIfRequested()
+        #endif
     }
 
     func upsert(_ chain: TimerChain) {
@@ -44,6 +47,52 @@ final class ChainStore {
             chains = box.chains
         }
     }
+
+    #if DEBUG
+    /// `-seedSampleChains` (Debug only): insert the sample chains into `chains.json`
+    /// when the store is empty. The whole method is compiled out of Release.
+    private func seedSampleChainsIfRequested() {
+        guard ProcessInfo.processInfo.arguments.contains("-seedSampleChains") else { return }
+        guard chains.isEmpty else { return }
+        // upsert inserts at index 0. Walk backward so Home (and -autoStartFirstChain)
+        // starts with Pour-over coffee.
+        for chain in Self.sampleChains().reversed() {
+            upsert(chain)
+        }
+    }
+
+    private static func sampleChains() -> [TimerChain] {
+        [
+            TimerChain(
+                name: "Pour-over coffee",
+                steps: [
+                    ChainStep(label: "Bloom", durationSeconds: 45),
+                    ChainStep(label: "Pour", durationSeconds: 90),
+                    ChainStep(label: "Steep", durationSeconds: 120),
+                ]
+            ),
+            TimerChain(
+                name: "Interval run",
+                steps: [
+                    ChainStep(label: "Warm-up", durationSeconds: 5 * 60),
+                    ChainStep(label: "Run", durationSeconds: 2 * 60),
+                    ChainStep(label: "Walk", durationSeconds: 60),
+                    ChainStep(label: "Run", durationSeconds: 2 * 60),
+                    ChainStep(label: "Walk", durationSeconds: 60),
+                ]
+            ),
+            TimerChain(
+                name: "Desk stretch",
+                steps: [
+                    ChainStep(label: "Hamstrings", durationSeconds: 45),
+                    ChainStep(label: "Quads", durationSeconds: 45),
+                    ChainStep(label: "Shoulders", durationSeconds: 45),
+                    ChainStep(label: "Calves", durationSeconds: 45),
+                ]
+            ),
+        ]
+    }
+    #endif
 
     private func save() {
         struct Box: Codable { var version: Int; var chains: [TimerChain] }

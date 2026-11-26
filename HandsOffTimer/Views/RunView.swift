@@ -54,6 +54,12 @@ struct RunView: View {
     }
 
     private var running: some View {
+        // The 84pt readout plus the 92pt controls overflow compact-height
+        // iPhone landscape. Keep this column when it fits; scroll when it does not.
+        fittingHeight { runningColumn }
+    }
+
+    private var runningColumn: some View {
         VStack(spacing: 0) {
             Spacer(minLength: 24)
             Text("Step \(engine.snapshot.stepIndex + 1) of \(engine.snapshot.stepCount)")
@@ -100,6 +106,11 @@ struct RunView: View {
     }
 
     private var done: some View {
+        fittingHeight { doneColumn }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+
+    private var doneColumn: some View {
         VStack(spacing: 16) {
             Image(systemName: "checkmark.circle.fill")
                 .font(.system(size: 72))
@@ -108,6 +119,21 @@ struct RunView: View {
                 .font(.largeTitle.weight(.semibold))
             Text("\(engine.snapshot.chainName) finished.")
                 .foregroundStyle(.secondary)
+        }
+    }
+
+    /// Portrait (and any height that fits) uses the original stack.
+    /// The scroll fallback only appears when that stack's height exceeds the offer,
+    /// so spacers still distribute space whenever the screen is tall enough.
+    @ViewBuilder
+    private func fittingHeight<Content: View>(@ViewBuilder content: () -> Content) -> some View {
+        ViewThatFits(in: .vertical) {
+            content()
+            ScrollView {
+                content()
+                    .frame(maxWidth: .infinity)
+            }
+            .scrollBounceBehavior(.basedOnSize)
         }
     }
 

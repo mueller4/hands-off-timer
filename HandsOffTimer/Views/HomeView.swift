@@ -8,11 +8,16 @@ struct HomeView: View {
     @Environment(ChainStore.self) private var store
     @Environment(ChainEngine.self) private var engine
     @Environment(AppRouter.self) private var router
+    @Environment(\.verticalSizeClass) private var verticalSizeClass
     @State private var showPermission = false
     @State private var pendingDelete: TimerChain?
     @State private var path = NavigationPath()
 
     var body: some View {
+        debugLaunch(home)
+    }
+
+    private var home: some View {
         NavigationStack(path: $path) {
             Group {
                 if store.chains.isEmpty {
@@ -85,7 +90,24 @@ struct HomeView: View {
         }
     }
 
+    /// ContentUnavailableView accepts any height and clips. iPhone landscape is a
+    /// compact height, so force a scroll view and ask for the content's ideal height.
+    @ViewBuilder
     private var empty: some View {
+        if verticalSizeClass == .compact {
+            ScrollView {
+                emptyContent
+                    .fixedSize(horizontal: false, vertical: true)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 24)
+            }
+            .scrollBounceBehavior(.basedOnSize)
+        } else {
+            emptyContent
+        }
+    }
+
+    private var emptyContent: some View {
         ContentUnavailableView {
             Label("No Chains Created", systemImage: "timer")
         } description: {
@@ -135,7 +157,39 @@ struct HomeView: View {
         engine.start(chain: chain)
         router.showRun = true
     }
+
+    private func debugLaunch<V: View>(_ view: V) -> some View {
+        #if DEBUG
+        view.onAppear(perform: consumeDebugLaunchArgumentsIfNeeded)
+        #else
+        view
+        #endif
+    }
+
+    #if DEBUG
+    /// `-autoStartFirstChain` (Debug only): start Home's first row the same way
+    /// the Start button does, including the alarm explainer when it is still needed.
+    private func consumeDebugLaunchArgumentsIfNeeded() {
+        guard !DebugAutoStart.didStart else { return }
+        DebugAutoStart.didStart = true
+        guard ProcessInfo.processInfo.arguments.contains("-autoStartFirstChain") else { return }
+        // Next turn, so HandsOffTimerApp has installed engine hooks and the
+        // permission alert is not presented from inside onAppear.
+        Task { @MainActor in
+            guard engine.snapshot.status != .running, engine.snapshot.status != .paused else { return }
+            guard let chain = store.chains.first else { return }
+            start(chain)
+        }
+    }
+    #endif
 }
+
+#if DEBUG
+@MainActor
+private enum DebugAutoStart {
+    static var didStart = false
+}
+#endif
 
 /// Swipe / context menu only request delete. Confirm lives on the parent so it
 /// actually appears (row-level confirmationDialog after swipeActions is flaky).
