@@ -63,9 +63,10 @@ struct RunView: View {
         }
     }
 
+    /// Compact width keeps the shipping column, including its primary-colored digits.
+    /// Regular width (open Duo, either window aspect) uses the side-by-side layout.
+    @ViewBuilder
     private var running: some View {
-        // Compact width keeps the shipping column, including its primary-colored digits.
-        // Regular width (open Duo, either window aspect) uses the side-by-side layout.
         if horizontalSizeClass == .regular {
             openOrTabletop
         } else {
