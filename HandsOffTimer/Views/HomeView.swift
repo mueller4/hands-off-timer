@@ -226,6 +226,7 @@ struct HomeView: View {
             }
         }
         .navigationTitle("Hands-Off Timer")
+        .navigationBarTitleDisplayMode(.large)
         .listStyle(.insetGrouped)
         .navigationSplitViewColumnWidth(min: 300, ideal: 340, max: 400)
         .toolbar {
