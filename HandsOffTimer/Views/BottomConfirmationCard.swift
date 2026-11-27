@@ -32,6 +32,15 @@ struct BottomConfirmationCard: View {
             actionCard
             cancelCard
         }
+        .background {
+            // Covers the gap and the rounded-corner cutouts so controls behind
+            // the stack stay blurred. Does not change the card size or hit targets.
+            RoundedRectangle(cornerRadius: 18, style: .continuous)
+                .fill(.regularMaterial)
+                .padding(-6)
+                .allowsHitTesting(false)
+                .accessibilityHidden(true)
+        }
         .frame(maxWidth: 400)
         .padding(.horizontal, 8)
         .safeAreaPadding(.bottom, 8)
@@ -130,12 +139,18 @@ private struct BottomConfirmationModifier: ViewModifier {
     var onConfirm: () -> Void
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.colorScheme) private var colorScheme
+
+    /// System action-sheet dim: lighter over a white screen, heavier in dark.
+    private var scrimOpacity: Double {
+        colorScheme == .dark ? 0.6 : 0.4
+    }
 
     func body(content: Content) -> some View {
         content.overlay {
             ZStack(alignment: .bottom) {
                 if isPresented {
-                    Color.black.opacity(0.4)
+                    Color.black.opacity(scrimOpacity)
                         .ignoresSafeArea()
                         .contentShape(Rectangle())
                         .onTapGesture { cancel() }
