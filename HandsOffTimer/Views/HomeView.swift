@@ -50,20 +50,8 @@ struct HomeView: View {
             } message: {
                 Text(AlarmKitGateway.purpose)
             }
-            .alert(
-                "Delete “\(pendingDelete?.displayName ?? "")”?",
-                isPresented: Binding(
-                    get: { pendingDelete != nil },
-                    set: { if !$0 { pendingDelete = nil } }
-                )
-            ) {
-                Button("Delete chain", role: .destructive) {
-                    if let pendingDelete { store.delete(pendingDelete) }
-                    pendingDelete = nil
-                }
-                Button("Cancel", role: .cancel) { pendingDelete = nil }
-            } message: {
-                Text("This chain will be removed from this device.")
+            .overlay(alignment: .bottomLeading) {
+                deleteConfirmationAnchor
             }
             .alert("Save changes to this chain?", isPresented: $showUnsaved) {
                 Button("Save") {
@@ -412,6 +400,71 @@ struct HomeView: View {
                 .buttonStyle(.plain)
             }
         }
+    }
+
+    /// Regular width shows the confirmation as a popover attached to this view.
+    /// A full-bleed source has no room beside it, so the popover never appears
+    /// or opens at the window origin. The button is a real anchor in the sidebar
+    /// (ideal width 320) and stays up when the split swaps for the compact column.
+    /// The row is not the source: swipeActions removes that anchor first.
+    private var deleteConfirmationAnchor: some View {
+        Button(action: {}) {
+            Color.clear
+        }
+        .buttonStyle(.plain)
+        .frame(width: 1, height: 1)
+        .accessibilityHidden(pendingDelete == nil)
+        .confirmationDialog(
+            "Delete “\(pendingDelete?.displayName ?? "")”?",
+            isPresented: Binding(
+                get: { pendingDelete != nil },
+                set: { if !$0 { pendingDelete = nil } }
+            ),
+            titleVisibility: .visible,
+            presenting: pendingDelete
+        ) { chain in
+            Button("Delete Chain", role: .destructive) {
+                deleteChain(chain)
+            }
+            Button("Cancel", role: .cancel) {}
+        } message: { chain in
+            Text(deleteMessage(for: chain))
+        }
+        .padding(.leading, 160)
+        .padding(.bottom, 40)
+        .allowsHitTesting(false)
+    }
+
+    private func deleteMessage(for chain: TimerChain) -> String {
+        if isActiveRun(chain) {
+            return "This chain is running. Deleting it will stop the timer and remove it from this device."
+        }
+        return "This chain will be removed from this device."
+    }
+
+    private func isActiveRun(_ chain: TimerChain) -> Bool {
+        engine.snapshot.chainId == chain.id
+            && (engine.snapshot.status == .running || engine.snapshot.status == .paused)
+    }
+
+    /// Stop a live run first, then remove the chain. Stopping uses the same
+    /// teardown as End Chain, so alarms, the Live Activity, and the widget run
+    /// clear before the chain disappears.
+    private func deleteChain(_ chain: TimerChain) {
+        pendingDelete = nil
+        if engine.snapshot.chainId == chain.id, engine.snapshot.status != .idle {
+            endActiveRun(engine: engine, router: router)
+        }
+        router.clearReferences(to: chain.id)
+        if selection == chain.id {
+            revertingSelection = true
+            selection = nil
+        }
+        if selectionIgnoredForStart == chain.id {
+            selectionIgnoredForStart = nil
+        }
+        store.delete(chain)
+        HomeWidgetPublisher.publish(chains: store.chains, snapshot: engine.snapshot)
     }
 
     private func start(_ chain: TimerChain) {
@@ -798,8 +851,8 @@ private struct ChainDetailView: View {
     }
 }
 
-/// Swipe / context menu only request delete. Confirm lives on the parent so it
-/// actually appears (row-level confirmationDialog after swipeActions is flaky).
+/// Swipe / context menu only request delete. Confirm lives on HomeView, not the
+/// row: a row-level confirmationDialog after swipeActions is flaky.
 private struct ChainRowView: View {
     let chain: TimerChain
     /// Regular-width sidebar only. Compact rows leave this false and keep today's layout.
