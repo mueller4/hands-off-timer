@@ -23,6 +23,7 @@
 		B3A011030000000000000001 /* HowItWorksView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3A0110300000000000000F1 /* HowItWorksView.swift */; };
 		C4C83229C0111A286D0D9F97 /* ChainEditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34E00C0261640F48231C7BC0 /* ChainEditorView.swift */; };
 		5D1976DC9439AC65DEBBDBE2 /* RunView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C28D4FBE1E1C7EFD6A5ACB0B /* RunView.swift */; };
+		C0FFEE0000000000000000A1 /* BottomConfirmationCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0FFEE0000000000000000A2 /* BottomConfirmationCard.swift */; };
 		7E9DCC1EAE6303F9CB931100 /* ChainActivityWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAAE56B25DB696C8EDBB7849 /* ChainActivityWidget.swift */; };
 		16E39014F9B7195E7BF70290 /* ChainActivityAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5C453F7819BDEFC4FD1089A9 /* ChainActivityAttributes.swift */; };
 		BCE4B6C1E4008FC299DBBF34 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AC9E1AB146F6A81D005752C2 /* Assets.xcassets */; };
@@ -109,6 +110,7 @@
 		B3A0110300000000000000F1 /* HowItWorksView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HowItWorksView.swift; sourceTree = "<group>"; };
 		34E00C0261640F48231C7BC0 /* ChainEditorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChainEditorView.swift; sourceTree = "<group>"; };
 		C28D4FBE1E1C7EFD6A5ACB0B /* RunView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RunView.swift; sourceTree = "<group>"; };
+		C0FFEE0000000000000000A2 /* BottomConfirmationCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BottomConfirmationCard.swift; sourceTree = "<group>"; };
 		FAAE56B25DB696C8EDBB7849 /* ChainActivityWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChainActivityWidget.swift; sourceTree = "<group>"; };
 		AC9E1AB146F6A81D005752C2 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		A041F2287CE4BF63FD99A4D9 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -303,6 +305,7 @@
 				B3A0110300000000000000F1 /* HowItWorksView.swift */,
 				34E00C0261640F48231C7BC0 /* ChainEditorView.swift */,
 				C28D4FBE1E1C7EFD6A5ACB0B /* RunView.swift */,
+				C0FFEE0000000000000000A2 /* BottomConfirmationCard.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -486,6 +489,7 @@
 				B3A011030000000000000001 /* HowItWorksView.swift in Sources */,
 				C4C83229C0111A286D0D9F97 /* ChainEditorView.swift in Sources */,
 				5D1976DC9439AC65DEBBDBE2 /* RunView.swift in Sources */,
+				C0FFEE0000000000000000A1 /* BottomConfirmationCard.swift in Sources */,
 				A11A01010000000000000001 /* AlarmKitGateway.swift in Sources */,
 				A11A01010000000000000002 /* AcknowledgeStepIntent.swift in Sources */,
 				A11A01010000000000000003 /* StepEndMetadata.swift in Sources */,

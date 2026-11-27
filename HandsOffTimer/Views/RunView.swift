@@ -21,15 +21,15 @@ struct RunView: View {
             }
         }
         .background(Color(.systemBackground))
-        .confirmationDialog(endConfirmationTitle, isPresented: $confirmStop, titleVisibility: .visible) {
-            Button("End Chain", role: .destructive) {
-                completeTask?.cancel()
-                endActiveRun(engine: engine, router: router)
-                dismiss()
-            }
-            Button("Cancel", role: .cancel) {}
-        } message: {
-            Text("The timer will stop and its alarms will be canceled.")
+        .bottomConfirmation(
+            isPresented: $confirmStop,
+            title: endConfirmationTitle,
+            message: "The timer will stop and its alarms will be canceled.",
+            destructiveTitle: "End Chain"
+        ) {
+            completeTask?.cancel()
+            endActiveRun(engine: engine, router: router)
+            dismiss()
         }
         .onChange(of: engine.snapshot.status) { _, status in
             refreshSpokenSummary()
