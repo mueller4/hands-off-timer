@@ -64,3 +64,13 @@ struct HandsOffTimerApp: App {
         }
     }
 }
+
+/// Shared Stop path for RunView's End Chain and for deleting the running chain.
+/// Cancels AlarmKit alarms, then stops the engine. `stop` publishes an idle
+/// snapshot, which ends the Live Activity and clears the widget's running state.
+@MainActor
+func endActiveRun(engine: ChainEngine, router: AppRouter) {
+    AlarmKitGateway.shared.cancelAllForRun()
+    engine.stop()
+    router.showRun = false
+}

@@ -114,6 +114,41 @@ final class AppRouter {
         showsHowItWorks = false
     }
 
+    /// Drop navigation and selection that still point at a chain about to be deleted.
+    func clearReferences(to chainID: UUID) {
+        if selectedChainID == chainID {
+            selectedChainID = nil
+            if draft == nil || draft?.chainID == chainID {
+                isEditingDetail = false
+                showEditor = false
+            }
+        }
+        if draft?.chainID == chainID {
+            draft = nil
+            showEditor = false
+            isNewEditor = false
+            isEditingDetail = false
+        }
+        if editing?.id == chainID {
+            editing = nil
+            if draft == nil {
+                showEditor = false
+                isNewEditor = false
+                isEditingDetail = false
+            }
+        }
+        if pendingStart?.id == chainID {
+            pendingStart = nil
+        }
+        if selectionBeforeNew == chainID {
+            selectionBeforeNew = nil
+        }
+        if lastRunChainID == chainID {
+            lastRunChainID = nil
+            UserDefaults.standard.removeObject(forKey: Self.lastRunDefaultsKey)
+        }
+    }
+
     /// Discard the open detail draft and leave the editor. Existing chains keep
     /// their selection so the read-only detail can show the saved chain. A new
     /// chain returns to the selection from before New Chain, or to no selection.

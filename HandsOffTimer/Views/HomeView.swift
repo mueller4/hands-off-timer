@@ -50,20 +50,15 @@ struct HomeView: View {
             } message: {
                 Text(AlarmKitGateway.purpose)
             }
-            .alert(
-                "Delete “\(pendingDelete?.displayName ?? "")”?",
-                isPresented: Binding(
-                    get: { pendingDelete != nil },
-                    set: { if !$0 { pendingDelete = nil } }
-                )
+            .bottomConfirmation(
+                isPresented: deleteConfirmationPresented,
+                title: "Delete “\(pendingDelete?.displayName ?? "")”?",
+                message: pendingDelete.map { deleteMessage(for: $0) } ?? "This chain will be removed from this device.",
+                destructiveTitle: "Delete Chain"
             ) {
-                Button("Delete chain", role: .destructive) {
-                    if let pendingDelete { store.delete(pendingDelete) }
-                    pendingDelete = nil
+                if let chain = pendingDelete {
+                    deleteChain(chain)
                 }
-                Button("Cancel", role: .cancel) { pendingDelete = nil }
-            } message: {
-                Text("This chain will be removed from this device.")
             }
             .alert("Save changes to this chain?", isPresented: $showUnsaved) {
                 Button("Save") {
@@ -412,6 +407,44 @@ struct HomeView: View {
                 .buttonStyle(.plain)
             }
         }
+    }
+
+    private var deleteConfirmationPresented: Binding<Bool> {
+        Binding(
+            get: { pendingDelete != nil },
+            set: { if !$0 { pendingDelete = nil } }
+        )
+    }
+
+    private func deleteMessage(for chain: TimerChain) -> String {
+        if isActiveRun(chain) {
+            return "This chain is running. Deleting it will stop the timer and remove it from this device."
+        }
+        return "This chain will be removed from this device."
+    }
+
+    private func isActiveRun(_ chain: TimerChain) -> Bool {
+        engine.snapshot.chainId == chain.id
+            && (engine.snapshot.status == .running || engine.snapshot.status == .paused)
+    }
+
+    /// Stop a live run first, then remove the chain. Stopping uses the same
+    /// teardown as End Chain, so alarms, the Live Activity, and the widget run
+    /// clear before the chain disappears.
+    private func deleteChain(_ chain: TimerChain) {
+        if engine.snapshot.chainId == chain.id, engine.snapshot.status != .idle {
+            endActiveRun(engine: engine, router: router)
+        }
+        router.clearReferences(to: chain.id)
+        if selection == chain.id {
+            revertingSelection = true
+            selection = nil
+        }
+        if selectionIgnoredForStart == chain.id {
+            selectionIgnoredForStart = nil
+        }
+        store.delete(chain)
+        HomeWidgetPublisher.publish(chains: store.chains, snapshot: engine.snapshot)
     }
 
     private func start(_ chain: TimerChain) {
@@ -798,8 +831,8 @@ private struct ChainDetailView: View {
     }
 }
 
-/// Swipe / context menu only request delete. Confirm lives on the parent so it
-/// actually appears (row-level confirmationDialog after swipeActions is flaky).
+/// Swipe / context menu only request delete. The confirmation card lives on
+/// HomeView, not the row.
 private struct ChainRowView: View {
     let chain: TimerChain
     /// Regular-width sidebar only. Compact rows leave this false and keep today's layout.

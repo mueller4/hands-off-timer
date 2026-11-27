@@ -21,17 +21,15 @@ struct RunView: View {
             }
         }
         .background(Color(.systemBackground))
-        .confirmationDialog("End this chain?", isPresented: $confirmStop, titleVisibility: .visible) {
-            Button("End chain", role: .destructive) {
-                completeTask?.cancel()
-                AlarmKitGateway.shared.cancelAllForRun()
-                engine.stop()
-                router.showRun = false
-                dismiss()
-            }
-            Button("Cancel", role: .cancel) {}
-        } message: {
-            Text("The remaining steps will not run.")
+        .bottomConfirmation(
+            isPresented: $confirmStop,
+            title: endConfirmationTitle,
+            message: "The timer will stop and its alarms will be canceled.",
+            destructiveTitle: "End Chain"
+        ) {
+            completeTask?.cancel()
+            endActiveRun(engine: engine, router: router)
+            dismiss()
         }
         .onChange(of: engine.snapshot.status) { _, status in
             refreshSpokenSummary()
@@ -419,6 +417,12 @@ struct RunView: View {
             }
         }
         .accessibilityLabel(accessibilityLabel)
+    }
+
+    private var endConfirmationTitle: String {
+        let trimmed = engine.snapshot.chainName.trimmingCharacters(in: .whitespacesAndNewlines)
+        let name = trimmed.isEmpty ? TimerChain.defaultName : trimmed
+        return "End “\(name)”?"
     }
 
     private var activeChain: TimerChain? {
