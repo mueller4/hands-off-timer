@@ -45,6 +45,7 @@ struct BottomConfirmationCard: View {
         .padding(.horizontal, 8)
         .safeAreaPadding(.bottom, 8)
         .accessibilityElement(children: .contain)
+        .accessibilityAddTraits(.isModal)
         .accessibilityAction(.escape, onCancel)
     }
 
@@ -147,36 +148,48 @@ private struct BottomConfirmationModifier: ViewModifier {
     }
 
     func body(content: Content) -> some View {
-        content.overlay {
-            ZStack(alignment: .bottom) {
-                if isPresented {
-                    Color.black.opacity(scrimOpacity)
-                        .ignoresSafeArea()
-                        .contentShape(Rectangle())
-                        .onTapGesture { cancel() }
-                        .accessibilityHidden(true)
-                        .transition(.opacity)
-                }
-                if isPresented {
-                    BottomConfirmationCard(
-                        title: title,
-                        message: message,
-                        destructiveTitle: destructiveTitle,
-                        onConfirm: confirm,
-                        onCancel: cancel
+        ZStack {
+            content
+                .allowsHitTesting(!isPresented)
+                .accessibilityHidden(isPresented)
+            presentation
+        }
+    }
+
+    private var presentation: some View {
+        ZStack(alignment: .bottom) {
+            if isPresented {
+                Color.black.opacity(scrimOpacity)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .contentShape(Rectangle())
+                    .ignoresSafeArea()
+                    .onTapGesture { cancel() }
+                    .highPriorityGesture(
+                        DragGesture(minimumDistance: 0).onEnded { _ in cancel() }
                     )
-                    .transition(cardTransition)
-                }
+                    .accessibilityHidden(true)
+                    .transition(.opacity)
             }
-            .animation(cardAnimation, value: isPresented)
-            .allowsHitTesting(isPresented)
-            .accessibilityElement(children: .contain)
-            .accessibilityAddTraits(isPresented ? AccessibilityTraits.isModal : AccessibilityTraits())
-            .accessibilityHidden(!isPresented)
-            .accessibilityAction(.escape) {
-                if isPresented {
-                    cancel()
-                }
+            if isPresented {
+                BottomConfirmationCard(
+                    title: title,
+                    message: message,
+                    destructiveTitle: destructiveTitle,
+                    onConfirm: confirm,
+                    onCancel: cancel
+                )
+                .transition(cardTransition)
+            }
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .allowsHitTesting(isPresented)
+        .animation(cardAnimation, value: isPresented)
+        .accessibilityElement(children: .contain)
+        .accessibilityAddTraits(isPresented ? AccessibilityTraits.isModal : AccessibilityTraits())
+        .accessibilityHidden(!isPresented)
+        .accessibilityAction(.escape) {
+            if isPresented {
+                cancel()
             }
         }
     }
@@ -191,12 +204,19 @@ private struct BottomConfirmationModifier: ViewModifier {
 
     private func confirm() {
         onConfirm()
-        if isPresented {
-            isPresented = false
-        }
+        dismissAfterTap()
     }
 
     private func cancel() {
-        isPresented = false
+        dismissAfterTap()
+    }
+
+    /// Wait until this touch has ended before removing the scrim. Clearing
+    /// `isPresented` inside the gesture re-enables the list and the same tap
+    /// opens the row underneath.
+    private func dismissAfterTap() {
+        Task { @MainActor in
+            isPresented = false
+        }
     }
 }

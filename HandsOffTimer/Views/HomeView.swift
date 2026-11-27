@@ -432,7 +432,6 @@ struct HomeView: View {
     /// teardown as End Chain, so alarms, the Live Activity, and the widget run
     /// clear before the chain disappears.
     private func deleteChain(_ chain: TimerChain) {
-        pendingDelete = nil
         if engine.snapshot.chainId == chain.id, engine.snapshot.status != .idle {
             endActiveRun(engine: engine, router: router)
         }
